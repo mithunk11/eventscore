@@ -14,97 +14,51 @@ export default function NewEventPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setSaving(true)
-    setError(null)
-
+    setSaving(true); setError(null)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setError('Your session expired. Sign in again.'); setSaving(false); return }
 
-    if (!user) {
-      setError('Not signed in.')
-      setSaving(false)
-      return
-    }
+    const { data, error } = await supabase.from('events')
+      .insert({ owner_id: user.id, name, event_date: eventDate || null, venue: venue || null })
+      .select('id').single()
 
-    const { error } = await supabase.from('events').insert({
-      owner_id: user.id,
-      name,
-      event_date: eventDate || null,
-      venue: venue || null,
-    })
-
-    if (error) {
-      setError(error.message)
-      setSaving(false)
-      return
-    }
-
-    router.push('/dashboard')
-    router.refresh()
+    if (error) { setError(error.message); setSaving(false); return }
+    router.push('/events/' + data.id); router.refresh()
   }
 
   return (
-    <main className="mx-auto max-w-lg p-6">
-      <h1 className="mb-1 text-2xl font-medium">New event</h1>
-      <p className="mb-8 text-sm text-gray-500">
-        You can change any of this later.
-      </p>
+    <div className="app">
+      <div className="spot" />
+      <header className="topbar">
+        <a className="back" href="/dashboard" aria-label="Back">&lsaquo;</a>
+        <span className="topbar-title">New event</span>
+      </header>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div>
-          <label className="mb-1 block text-sm text-gray-700">Event name</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="Miss Galway 2026"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
-          />
-        </div>
+      <div className="screen">
+        <p className="eyebrow">Setting the bill</p>
+        <h1 className="display d-xl">The basics</h1>
+        <p className="sub" style={{ marginBottom: 30 }}>Rounds, contestants and judges come next.</p>
 
-        <div>
-          <label className="mb-1 block text-sm text-gray-700">Date</label>
-          <input
-            type="date"
-            value={eventDate}
-            onChange={(e) => setEventDate(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm text-gray-700">Venue</label>
-          <input
-            value={venue}
-            onChange={(e) => setVenue(e.target.value)}
-            placeholder="Optional"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-900"
-          />
-        </div>
-
-        {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
-
-        <div className="mt-2 flex gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-gray-900 px-5 py-2.5 text-white disabled:opacity-50"
-          >
-            {saving ? 'Creating…' : 'Create event'}
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label className="label" htmlFor="name">Event name</label>
+            <input id="name" className="input" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Miss Galway 2026" />
+          </div>
+          <div className="field">
+            <label className="label" htmlFor="date">Date</label>
+            <input id="date" className="input" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+          </div>
+          <div className="field">
+            <label className="label" htmlFor="venue">Venue</label>
+            <input id="venue" className="input" value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="Optional" />
+          </div>
+          {error && <p className="alert">{error}</p>}
+          <button className="btn btn-amber btn-full" type="submit" disabled={saving} style={{ marginTop: 8 }}>
+            {saving ? 'Creating' : 'Create event'}
           </button>
-          <button
-            type="button"
-            onClick={() => router.push('/dashboard')}
-            className="px-3 text-sm text-gray-500 hover:text-gray-900"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </main>
+        </form>
+      </div>
+    </div>
   )
 }

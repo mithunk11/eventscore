@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { Brand } from '@/components/Brand'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: events } = await supabase.from('events').select('*')
+  const { data: events } = await supabase
+    .from('events').select('*').order('created_at', { ascending: false })
 
   async function signOut() {
     'use server'
@@ -17,34 +18,44 @@ export default async function DashboardPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <div className="mb-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-medium">EventScore</h1>
-          <p className="text-sm text-gray-500">{user.email}</p>
-        </div>
-        <form action={signOut}>
-          <button className="text-sm text-gray-500 hover:text-gray-900">Sign out</button>
-        </form>
+    <div className="app">
+      <div className="spot" />
+      <header className="topbar">
+        <Brand />
+        <span style={{ flex: 1 }} />
+        <form action={signOut}><button className="btn btn-quiet" type="submit">Sign out</button></form>
+      </header>
+
+      <div className="screen">
+        <p className="eyebrow">On the bill</p>
+        <h1 className="display d-xl" style={{ marginBottom: 24 }}>Your events</h1>
+
+        {!events || events.length === 0 ? (
+          <div className="empty">
+            <h2 className="display d-l" style={{ marginBottom: 8 }}>Nothing scheduled</h2>
+            <p className="sub">Set up your first event, add contestants, and invite judges by QR or PIN.</p>
+          </div>
+        ) : (
+          <ul className="list">
+            {events.map((event) => (
+              <li key={event.id}>
+                <a className="card" href={'/events/' + event.id}>
+                  <span className="thumb">{event.name.slice(0, 1).toUpperCase()}</span>
+                  <span className="card-body">
+                    <span className="card-title">{event.name}</span>
+                    <span className="card-meta nums">{event.event_date ?? 'No date'} &middot; {event.status}</span>
+                  </span>
+                  <span className="chev">&rsaquo;</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium">Your events</h2>
-        <a href="/events/new" className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white">New event</a>
+      <div className="dock">
+        <a className="btn btn-amber btn-full" href="/events/new">New event</a>
       </div>
-
-      {!events || events.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center">
-          <p className="mb-1 text-gray-900">No events yet</p>
-          <p className="text-sm text-gray-500">Create your first event to get started.</p>
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {events.map((event) => (
-            <li key={event.id} className="rounded-xl border border-gray-200 p-4">{event.name}</li>
-          ))}
-        </ul>
-      )}
-    </main>
+    </div>
   )
 }
