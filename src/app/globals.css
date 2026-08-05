@@ -538,3 +538,31 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 @media (prefers-reduced-motion: reduce) {
   .pod { animation: none !important; opacity: 1 !important }
 }
+
+/* ---------- Site additions ---------- */
+
+.site-nav nav a.nav-on { color: var(--ink); font-weight: 600 }
+.site-nav > a { text-decoration: none }
+
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 34px }
+@media (max-width: 760px) { .twocol { grid-template-columns: 1fr; gap: 18px } }
+.twocol p { margin: 0; font-size: 16px; line-height: 1.7; color: var(--muted) }
+
+.kinds { display: flex; flex-wrap: wrap; gap: 9px; list-style: none; margin: 0; padding: 0 }
+.kinds li {
+  padding: 11px 18px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line);
+  font-size: 14px; color: var(--ink);
+}
+.kinds li:nth-child(3n+1) { border-color: var(--amber-edge); background: var(--amber-soft) }
+.kinds li:nth-child(3n+2) { border-color: var(--rose-edge); background: var(--rose-soft) }
+.kinds li:nth-child(3n+3) { border-color: var(--teal-edge); background: var(--teal-soft) }
+
+.cta-band { text-align: center; padding-top: 80px; padding-bottom: 90px }
+
+.contact-band { padding-top: 40px }
+.expect { margin: 28px 0 }
+.expect h3 { font-family: var(--font-display), Georgia, serif; font-size: 17px; margin: 0 0 12px }
+.expect ol, .expect ul { margin: 0; padding-left: 20px }
+.expect li { margin-bottom: 8px; font-size: 14px; line-height: 1.6; color: var(--muted) }
+.expect a, .sub a { color: var(--amber) }
