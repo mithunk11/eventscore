@@ -49,7 +49,7 @@ export default async function ContestantsPage({ params }: { params: Promise<{ id
         ) : (
           <ul className="list">
             {contestants!.map((c) => (
-              <li key={c.id} className="card">
+              <li key={c.id} className="card card-rose">
                 <span className="avatar-wrap">
                   {c.photo_url && photos[c.photo_url]
                     ? <img className="avatar" src={photos[c.photo_url]} alt="" />

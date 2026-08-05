@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { CustomerCard } from '@/components/CustomerCard'
 import { Brand } from '@/components/Brand'
+import { AddCustomer } from '@/components/AddCustomer'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,9 +56,7 @@ export default async function AdminPage() {
         {active.length === 0 ? (
           <div className="empty">
             <h2 className="display d-l" style={{ marginBottom: 8 }}>No customers yet</h2>
-            <p className="sub">
-              Create accounts in Supabase under Authentication, then set their limits here.
-            </p>
+            <p className="sub">Add your first customer below.</p>
           </div>
         ) : (
           <ul className="list">
@@ -73,6 +72,9 @@ export default async function AdminPage() {
             </ul>
           </>
         )}
+      </div>
+      <div className="dock">
+        <AddCustomer />
       </div>
     </div>
   )
