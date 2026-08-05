@@ -8,6 +8,10 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Someone with a verified factor must complete it, even arriving by direct link
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+  if (aal?.nextLevel === 'aal2' && aal.nextLevel !== aal.currentLevel) redirect('/login')
+
   const { data: accepted } = await supabase
     .from('acceptances').select('document')
     .eq('profile_id', user.id).eq('version', DOC_VERSION)
@@ -33,7 +37,8 @@ export default async function DashboardPage() {
       <header className="topbar">
         <Brand />
         <span style={{ flex: 1 }} />
-        {profile?.role === 'owner' && <a className="btn btn-quiet" href="/admin">Admin</a>}
+        {profile?.role === 'owner' && <a className="btn btn-quiet" href="/backstage">Admin</a>}
+        <a className="btn btn-quiet" href="/security">Security</a>
         <form action={signOut}><button className="btn btn-quiet" type="submit">Sign out</button></form>
       </header>
 

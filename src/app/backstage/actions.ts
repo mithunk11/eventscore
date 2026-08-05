@@ -23,7 +23,7 @@ export async function setAccess(profileId: string, access: 'full' | 'readonly' |
 
   const { error } = await supabase.from('profiles').update({ access }).eq('id', profileId)
   if (error) return { error: error.message }
-  revalidatePath('/admin')
+  revalidatePath('/backstage')
   return { ok: true }
 }
 
@@ -38,7 +38,7 @@ export async function setLimits(profileId: string, form: FormData) {
   }).eq('id', profileId)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin')
+  revalidatePath('/backstage')
   return { ok: true }
 }
 
@@ -52,7 +52,7 @@ export async function softDelete(profileId: string) {
     .eq('id', profileId)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin')
+  revalidatePath('/backstage')
   return { ok: true }
 }
 
@@ -65,7 +65,7 @@ export async function restore(profileId: string) {
     .eq('id', profileId)
 
   if (error) return { error: error.message }
-  revalidatePath('/admin')
+  revalidatePath('/backstage')
   return { ok: true }
 }
 
@@ -107,7 +107,7 @@ export async function createCustomer(_prev: unknown, form: FormData) {
     max_judges: Number(form.get('judges') ?? 5),
   })
 
-  revalidatePath('/admin')
+  revalidatePath('/backstage')
   return { ok: true, email, tempPassword }
 }
 
@@ -127,4 +127,32 @@ export async function resetCustomerPassword(profileId: string) {
   if (error) return { error: error.message }
 
   return { ok: true, tempPassword }
+}
+
+/**
+ * Clears a customer's two-factor setup when they lose their phone.
+ * TOTP has no self-service recovery, so this is the only way back in.
+ */
+export async function clearTwoFactor(profileId: string) {
+  const supabase = await requireOwner()
+  if (!supabase) return { error: 'Not permitted.' }
+
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const db = createAdminClient()
+
+  const { data: list, error: listError } = await db.auth.admin.mfa.listFactors({ userId: profileId })
+  if (listError) return { error: listError.message }
+
+  let cleared = 0
+  for (const f of list?.factors ?? []) {
+    const { error } = await db.auth.admin.mfa.deleteFactor({ id: f.id, userId: profileId })
+    if (!error) cleared++
+  }
+
+  await db.from('audit_log').insert({
+    actor_id: profileId, action: 'mfa.cleared_by_owner', target_type: 'profile', target_id: profileId,
+  })
+
+  revalidatePath('/backstage')
+  return { ok: true, cleared }
 }

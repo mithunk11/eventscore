@@ -30,6 +30,7 @@ export default async function AdminPage() {
       max_judges: c.max_judges ?? 5,
       eventCount: Number(n ?? 0),
       adminUntil: c.admin_access_until,
+      backupEmail: c.backup_email ?? null,
     })
   }
 

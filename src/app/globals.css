@@ -468,3 +468,17 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
   .spot, .sheet, .scrim, .bigplinth { animation: none !important }
   .mb { animation: none !important; opacity: 1 !important }
 }
+
+/* ---------- Two-factor ---------- */
+
+.qrbox { display: grid; place-items: center; padding: 20px; margin-bottom: 16px; border-radius: 20px; background: #fff; border: 1px solid var(--line) }
+.qrbox img { display: block; border-radius: 8px }
+
+/* ---------- Security page ---------- */
+
+.sec-block { margin-bottom: 40px; padding-bottom: 36px; border-bottom: 1px solid var(--line) }
+.sec-block:last-child { border-bottom: 0 }
+
+.codes { padding: 18px; border-radius: 18px; background: var(--amber-soft) }
+.codelist { margin: 14px 0 18px; padding-left: 22px; columns: 2; column-gap: 16px }
+.codelist li { margin-bottom: 8px; font-size: 14px; letter-spacing: .04em; break-inside: avoid }

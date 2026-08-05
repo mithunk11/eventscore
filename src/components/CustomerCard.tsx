@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { setAccess, setLimits, softDelete, restore } from '@/app/admin/actions'
+import { setAccess, setLimits, softDelete, restore, clearTwoFactor } from '@/app/backstage/actions'
 
 type Customer = {
   id: string
@@ -16,6 +16,7 @@ type Customer = {
   max_judges: number
   eventCount: number
   adminUntil: string | null
+  backupEmail: string | null
 }
 
 const STATES: { key: 'full' | 'readonly' | 'disabled'; label: string }[] = [
@@ -43,6 +44,7 @@ export function CustomerCard({ customer }: { customer: Customer }) {
         <span className="card-body">
           <span className="card-title">{customer.org_name || customer.email}</span>
           <span className="card-meta">{customer.org_name ? customer.email : 'No organisation name'}</span>
+          {customer.backupEmail && <span className="card-meta">Backup: {customer.backupEmail}</span>}
         </span>
         <span className="count nums">{customer.eventCount} event{customer.eventCount === 1 ? '' : 's'}</span>
       </div>
@@ -100,7 +102,11 @@ export function CustomerCard({ customer }: { customer: Customer }) {
                 : 'Their data is not visible to you'}
             </span>
             {!confirming ? (
-              <button className="trash" onClick={() => setConfirming(true)}>Delete</button>
+              <span style={{ display: 'flex', gap: 10 }}>
+                <button className="trash" disabled={busy}
+                  onClick={() => run(() => clearTwoFactor(customer.id))}>Clear 2FA</button>
+                <button className="trash" onClick={() => setConfirming(true)}>Delete</button>
+              </span>
             ) : (
               <span style={{ display: 'flex', gap: 8 }}>
                 <button className="trash" style={{ color: 'var(--magenta)' }} disabled={busy}

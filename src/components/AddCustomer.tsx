@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createCustomer } from '@/app/admin/actions'
+import { createCustomer } from '@/app/backstage/actions'
 import { Sheet } from '@/components/Sheet'
 
 export function AddCustomer() {
