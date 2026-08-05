@@ -15,7 +15,7 @@ export default async function AdminPage() {
   if (me?.role !== 'owner') redirect('/dashboard')
 
   const { data: customers } = await supabase
-    .from('profiles').select('*').eq('role', 'customer').order('created_at', { ascending: false })
+    .from('profiles').select('*').order('role').order('created_at', { ascending: false })
 
   // Counts only. There is no query here for event names, contestants or scores,
   // and no policy that would allow one.
@@ -31,8 +31,13 @@ export default async function AdminPage() {
       eventCount: Number(n ?? 0),
       adminUntil: c.admin_access_until,
       backupEmail: c.backup_email ?? null,
+      role: (c.role ?? 'customer') as 'owner' | 'customer',
+      isOnlyOwner: false,
     })
   }
+
+  const ownerCount = withCounts.filter((c) => c.role === 'owner').length
+  withCounts.forEach((c) => { c.isOnlyOwner = c.role === 'owner' && ownerCount <= 1 })
 
   const active = withCounts.filter((c) => c.status !== 'deleted')
   const gone = withCounts.filter((c) => c.status === 'deleted')
@@ -50,8 +55,8 @@ export default async function AdminPage() {
         <p className="eyebrow">Owner</p>
         <h1 className="display d-xl">Customers</h1>
         <p className="sub" style={{ marginBottom: 26 }}>
-          You can set access and limits. Event names, contestants and scores are not
-          readable from here.
+          Accounts, access and limits. Event names, contestants and scores stay
+          unreadable from here.
         </p>
 
         {active.length === 0 ? (

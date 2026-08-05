@@ -55,6 +55,23 @@ export function AddCustomer() {
               <input id="cor" name="org_name" className="input" placeholder="Galway Events" />
             </div>
             <div className="field">
+              <span className="label">Account type</span>
+              <div className="choice">
+                <button type="button" onClick={(e) => {
+                  const f = (e.target as HTMLElement).closest('form')!
+                  ;(f.querySelector('[name=role]') as HTMLInputElement).value = 'customer'
+                  f.querySelectorAll('.choice button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.target)))
+                }} aria-pressed="true">Customer, runs their own events</button>
+                <button type="button" onClick={(e) => {
+                  const f = (e.target as HTMLElement).closest('form')!
+                  ;(f.querySelector('[name=role]') as HTMLInputElement).value = 'owner'
+                  f.querySelectorAll('.choice button').forEach((b) => b.setAttribute('aria-pressed', String(b === e.target)))
+                }} aria-pressed="false">Owner, can manage all accounts</button>
+              </div>
+              <input type="hidden" name="role" defaultValue="customer" />
+            </div>
+
+            <div className="field">
               <label className="label" htmlFor="cev">Events allowed</label>
               <input id="cev" name="events" className="input nums" type="number" min="1" defaultValue="1" />
             </div>

@@ -100,7 +100,8 @@ export async function createCustomer(_prev: unknown, form: FormData) {
   if (!created?.user) return { error: 'Could not create the account.' }
 
   await db.from('profiles').upsert({
-    id: created.user.id, email, org_name: orgName || null, role: 'customer',
+    id: created.user.id, email, org_name: orgName || null,
+    role: String(form.get('role') ?? 'customer') === 'owner' ? 'owner' : 'customer',
     access: 'full', status: 'active',
     max_active_events: Number(form.get('events') ?? 1),
     max_contestants: Number(form.get('contestants') ?? 30),
@@ -155,4 +156,72 @@ export async function clearTwoFactor(profileId: string) {
 
   revalidatePath('/backstage')
   return { ok: true, cleared }
+}
+
+function tempPassword() {
+  const bytes = new Uint8Array(9)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes).map((b) => b.toString(36).padStart(2, '0')).join('').slice(0, 14)
+}
+
+/** Changes email and organisation. Email changes go through Supabase Auth too. */
+export async function updateAccountDetails(profileId: string, form: FormData) {
+  const supabase = await requireOwner()
+  if (!supabase) return { error: 'Not permitted.' }
+
+  const email = String(form.get('email') ?? '').trim().toLowerCase()
+  const orgName = String(form.get('org_name') ?? '').trim()
+  if (!email.includes('@')) return { error: 'Enter a valid email address.' }
+
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const db = createAdminClient()
+
+  const { error: authError } = await db.auth.admin.updateUserById(profileId, { email, email_confirm: true })
+  if (authError) return { error: authError.message }
+
+  const { error } = await db.from('profiles').update({ email, org_name: orgName || null }).eq('id', profileId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/backstage')
+  return { ok: true }
+}
+
+/**
+ * Promotes or demotes an account. An owner can manage every account, so this is
+ * the most consequential control here — the last owner cannot be demoted.
+ */
+export async function setRole(profileId: string, role: 'owner' | 'customer') {
+  const supabase = await requireOwner()
+  if (!supabase) return { error: 'Not permitted.' }
+
+  if (role === 'customer') {
+    const { count } = await supabase
+      .from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'owner')
+    if ((count ?? 0) <= 1) return { error: 'This is the only owner. Promote someone else first.' }
+  }
+
+  const { error } = await supabase.from('profiles').update({ role }).eq('id', profileId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/backstage')
+  return { ok: true }
+}
+
+/** Issues a fresh password when someone is locked out. Shown once. */
+export async function resetPassword(profileId: string) {
+  const supabase = await requireOwner()
+  if (!supabase) return { error: 'Not permitted.' }
+
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const db = createAdminClient()
+
+  const password = tempPassword()
+  const { error } = await db.auth.admin.updateUserById(profileId, { password })
+  if (error) return { error: error.message }
+
+  await db.from('audit_log').insert({
+    actor_id: profileId, action: 'password.reset_by_owner', target_type: 'profile', target_id: profileId,
+  })
+
+  return { ok: true, password }
 }

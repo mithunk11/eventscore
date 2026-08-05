@@ -482,3 +482,17 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .codes { padding: 18px; border-radius: 18px; background: var(--amber-soft) }
 .codelist { margin: 14px 0 18px; padding-left: 22px; columns: 2; column-gap: 16px }
 .codelist li { margin-bottom: 8px; font-size: 14px; letter-spacing: .04em; break-inside: avoid }
+
+/* ---------- Account tools ---------- */
+
+.acct { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line) }
+.acct-row { display: flex; flex-wrap: wrap; gap: 6px }
+.acct-btn {
+  min-height: 38px; padding: 0 13px;
+  border: 1px solid var(--line-hi); border-radius: 999px;
+  background: var(--card); color: var(--muted);
+  font-family: inherit; font-size: 12px; cursor: pointer;
+  transition: color .16s ease, border-color .16s ease;
+}
+.acct-btn:hover { color: var(--violet); border-color: var(--violet-edge) }
+.acct-btn:disabled { opacity: .4 }

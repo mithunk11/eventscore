@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { setAccess, setLimits, softDelete, restore, clearTwoFactor } from '@/app/backstage/actions'
+import { setAccess, setLimits, softDelete, restore } from '@/app/backstage/actions'
+import { AccountAdmin } from '@/components/AccountAdmin'
 
 type Customer = {
   id: string
@@ -17,6 +18,8 @@ type Customer = {
   eventCount: number
   adminUntil: string | null
   backupEmail: string | null
+  role: 'owner' | 'customer'
+  isOnlyOwner: boolean
 }
 
 const STATES: { key: 'full' | 'readonly' | 'disabled'; label: string }[] = [
@@ -95,6 +98,9 @@ export function CustomerCard({ customer }: { customer: Customer }) {
             </form>
           )}
 
+          <AccountAdmin profileId={customer.id} email={customer.email}
+            orgName={customer.org_name} role={customer.role} isOnlyOwner={customer.isOnlyOwner} />
+
           <div className="customer-foot">
             <span className="sub" style={{ margin: 0, fontSize: 12 }}>
               {customer.adminUntil && new Date(customer.adminUntil) > new Date()
@@ -102,11 +108,7 @@ export function CustomerCard({ customer }: { customer: Customer }) {
                 : 'Their data is not visible to you'}
             </span>
             {!confirming ? (
-              <span style={{ display: 'flex', gap: 10 }}>
-                <button className="trash" disabled={busy}
-                  onClick={() => run(() => clearTwoFactor(customer.id))}>Clear 2FA</button>
-                <button className="trash" onClick={() => setConfirming(true)}>Delete</button>
-              </span>
+              <button className="trash" onClick={() => setConfirming(true)}>Delete</button>
             ) : (
               <span style={{ display: 'flex', gap: 8 }}>
                 <button className="trash" style={{ color: 'var(--magenta)' }} disabled={busy}

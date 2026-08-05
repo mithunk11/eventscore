@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { TwoFactorSetup } from '@/components/TwoFactorSetup'
 import { RecoveryCodes } from '@/components/RecoveryCodes'
 import { BackupEmail } from '@/components/BackupEmail'
+import { ChangePassword } from '@/components/ChangePassword'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,6 +46,11 @@ export default async function SecurityPage({
             below on your new device.
           </div>
         )}
+
+        <section className="sec-block">
+          <h2 className="display d-l" style={{ marginBottom: 12 }}>Password</h2>
+          <ChangePassword />
+        </section>
 
         <section className="sec-block">
           <h2 className="display d-l" style={{ marginBottom: 12 }}>Two-factor</h2>

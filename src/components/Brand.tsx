@@ -1,19 +1,43 @@
-export function Brand({ size = 26 }: { size?: number }) {
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
-      <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-        <rect className="bar bar1" x="5"  y="19" width="6" height="9"  rx="2" fill="#FF3D8B" />
-        <rect className="bar bar2" x="13" y="10" width="6" height="18" rx="2" fill="#FFB547" />
-        <rect className="bar bar3" x="21" y="15" width="6" height="13" rx="2" fill="#46E5D0" />
+/**
+ * Three ascending bars that read as a podium and as an E.
+ * `stacked` is the large version for landing and sign-in screens.
+ */
+export function Brand({
+  size = 34,
+  stacked = false,
+  invert = false,
+}: {
+  size?: number
+  stacked?: boolean
+  invert?: boolean
+}) {
+  const badge = (
+    <span className={'mark' + (invert ? ' mark-invert' : '')} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">
+        <rect className="mb mb1" x="8"  y="23" width="7" height="11" rx="2.5" />
+        <rect className="mb mb2" x="17" y="12" width="7" height="22" rx="2.5" />
+        <rect className="mb mb3" x="26" y="18" width="7" height="16" rx="2.5" />
       </svg>
-      <span style={{ fontFamily: 'var(--font-display), Georgia, serif', fontSize: 17, letterSpacing: '-.01em' }}>
-        EventScore
+    </span>
+  )
+
+  if (stacked) {
+    return (
+      <span className="lockup lockup-stacked">
+        {badge}
+        <span className="wordmark" style={{ fontSize: size * 0.82 }}>
+          Event<em>Score</em>
+        </span>
       </span>
-      <style>{`
-        .bar { transform-origin: 50% 100%; animation: rise .55s cubic-bezier(.2,.8,.2,1) both }
-        .bar1 { animation-delay: .04s } .bar2 { animation-delay: .15s } .bar3 { animation-delay: .26s }
-        @keyframes rise { from { transform: scaleY(0); opacity: 0 } to { transform: scaleY(1); opacity: 1 } }
-      `}</style>
+    )
+  }
+
+  return (
+    <span className="lockup">
+      {badge}
+      <span className="wordmark" style={{ fontSize: size * 0.56 }}>
+        Event<em>Score</em>
+      </span>
     </span>
   )
 }
