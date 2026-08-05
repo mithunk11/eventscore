@@ -1,0 +1,22 @@
+name: Maintenance
+
+on:
+  schedule:
+    - cron: "0 6 */2 * *"   # every 2 days at 06:00 UTC
+  workflow_dispatch:         # lets you run it by hand from the Actions tab
+
+jobs:
+  maintain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep Supabase awake
+        run: |
+          curl -s -o /dev/null -w "supabase: %{http_code}\n" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}"
+
+      - name: Purge expired events
+        run: |
+          curl -s -w "\npurge: %{http_code}\n" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/purge"

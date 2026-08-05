@@ -1,11 +1,21 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Brand } from '@/components/Brand'
+import { DOC_VERSION, DOCUMENTS } from '@/lib/legal'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const { data: accepted } = await supabase
+    .from('acceptances').select('document')
+    .eq('profile_id', user.id).eq('version', DOC_VERSION)
+  const have = new Set((accepted ?? []).map((a) => a.document))
+  if (!DOCUMENTS.every((d) => have.has(d))) redirect('/accept')
+
+  const { data: profile } = await supabase
+    .from('profiles').select('role').eq('id', user.id).maybeSingle()
 
   const { data: events } = await supabase
     .from('events').select('*').order('created_at', { ascending: false })
@@ -23,6 +33,7 @@ export default async function DashboardPage() {
       <header className="topbar">
         <Brand />
         <span style={{ flex: 1 }} />
+        {profile?.role === 'owner' && <a className="btn btn-quiet" href="/admin">Admin</a>}
         <form action={signOut}><button className="btn btn-quiet" type="submit">Sign out</button></form>
       </header>
 

@@ -32,6 +32,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
       <header className="topbar">
         <a className="back" href="/dashboard" aria-label="Back">&lsaquo;</a>
         <span className="topbar-title">{event.name}</span>
+        <a className="btn btn-quiet" href={'/events/' + id + '/settings'}>Settings</a>
       </header>
 
       <div className="screen">
@@ -62,6 +63,19 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               <span className="card-body">
                 <span className="card-title d-m">Judges</span>
                 <span className="card-meta">{judgeCount || 'None'} invited</span>
+              </span>
+              <span className="chev">&rsaquo;</span>
+            </a>
+          </li>
+        </ul>
+
+        <ul className="list" style={{ marginBottom: 30 }}>
+          <li>
+            <a className="step" href={'/events/' + id + '/live'}>
+              <span className="dot dot-done">&#9679;</span>
+              <span className="card-body">
+                <span className="card-title d-m">Run the event</span>
+                <span className="card-meta">Live standings, overrides, podium</span>
               </span>
               <span className="chev">&rsaquo;</span>
             </a>
