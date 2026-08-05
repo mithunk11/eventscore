@@ -1,12 +1,19 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { CustomerCard } from '@/components/CustomerCard'
-import { Brand } from '@/components/Brand'
 import { AddCustomer } from '@/components/AddCustomer'
+import { Brand } from '@/components/Brand'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminPage() {
+export default async function BackstagePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>
+}) {
+  const { tab } = await searchParams
+  const view = tab === 'owners' ? 'owners' : tab === 'archive' ? 'archive' : 'customers'
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -14,17 +21,19 @@ export default async function AdminPage() {
   const { data: me } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
   if (me?.role !== 'owner') redirect('/dashboard')
 
-  const { data: customers } = await supabase
-    .from('profiles').select('*').order('role').order('created_at', { ascending: false })
+  const { data: rows } = await supabase
+    .from('profiles').select('*').order('created_at', { ascending: false })
 
-  // Counts only. There is no query here for event names, contestants or scores,
-  // and no policy that would allow one.
-  const withCounts = []
-  for (const c of customers ?? []) {
+  // Counts only. No query here reaches event names, contestants or scores,
+  // and no policy would allow one.
+  const all = []
+  for (const c of rows ?? []) {
     const { data: n } = await supabase.rpc('customer_event_count', { p_owner: c.id })
-    withCounts.push({
+    all.push({
       id: c.id, email: c.email, org_name: c.org_name,
-      access: c.access ?? 'full', status: c.status ?? 'active', deleted_at: c.deleted_at,
+      access: (c.access ?? 'full') as 'full' | 'readonly' | 'disabled',
+      status: c.status ?? 'active',
+      deleted_at: c.deleted_at,
       max_active_events: c.max_active_events ?? 1,
       max_contestants: c.max_contestants ?? 30,
       max_judges: c.max_judges ?? 5,
@@ -36,11 +45,21 @@ export default async function AdminPage() {
     })
   }
 
-  const ownerCount = withCounts.filter((c) => c.role === 'owner').length
-  withCounts.forEach((c) => { c.isOnlyOwner = c.role === 'owner' && ownerCount <= 1 })
+  const ownerCount = all.filter((c) => c.role === 'owner' && c.status !== 'deleted').length
+  all.forEach((c) => { c.isOnlyOwner = c.role === 'owner' && ownerCount <= 1 })
 
-  const active = withCounts.filter((c) => c.status !== 'deleted')
-  const gone = withCounts.filter((c) => c.status === 'deleted')
+  const live = all.filter((c) => c.status !== 'deleted')
+  const customers = live.filter((c) => c.role === 'customer')
+  const owners = live.filter((c) => c.role === 'owner')
+  const archive = all.filter((c) => c.status === 'deleted')
+
+  const showing = view === 'owners' ? owners : view === 'archive' ? archive : customers
+
+  const blurb = {
+    customers: 'Organisations running their own events. Set what each may create.',
+    owners: 'Full access to every account, including yours. Add sparingly.',
+    archive: 'Deleted accounts, purged automatically after 30 days.',
+  }[view]
 
   return (
     <div className="app">
@@ -48,40 +67,60 @@ export default async function AdminPage() {
       <header className="topbar">
         <Brand />
         <span style={{ flex: 1 }} />
+        <a className="btn btn-quiet" href="/backstage/enquiries">Enquiries</a>
         <a className="btn btn-quiet" href="/dashboard">My events</a>
       </header>
 
       <div className="screen">
-        <p className="eyebrow">Owner</p>
-        <h1 className="display d-xl">Customers</h1>
-        <p className="sub" style={{ marginBottom: 26 }}>
-          Accounts, access and limits. Event names, contestants and scores stay
-          unreadable from here.
-        </p>
+        <p className="eyebrow">Owner console</p>
+        <h1 className="display d-xl" style={{ marginBottom: 20 }}>Accounts</h1>
 
-        {active.length === 0 ? (
+        <nav className="tabs">
+          <a className={view === 'customers' ? 'tab tab-on' : 'tab'} href="/backstage">
+            Customers <span className="tab-n nums">{customers.length}</span>
+          </a>
+          <a className={view === 'owners' ? 'tab tab-on' : 'tab'} href="/backstage?tab=owners">
+            Owners <span className="tab-n nums">{owners.length}</span>
+          </a>
+          <a className={view === 'archive' ? 'tab tab-on' : 'tab'} href="/backstage?tab=archive">
+            Archive <span className="tab-n nums">{archive.length}</span>
+          </a>
+        </nav>
+
+        <p className="sub" style={{ marginTop: 0, marginBottom: 22 }}>{blurb}</p>
+
+        {view === 'owners' && owners.length > 1 && (
+          <p className="alert">
+            Every owner can reset your password and demote you. There is no seniority
+            between owners.
+          </p>
+        )}
+
+        {showing.length === 0 ? (
           <div className="empty">
-            <h2 className="display d-l" style={{ marginBottom: 8 }}>No customers yet</h2>
-            <p className="sub">Add your first customer below.</p>
+            <h2 className="display d-l" style={{ marginBottom: 8 }}>
+              {view === 'archive' ? 'Nothing archived' : view === 'owners' ? 'Just you' : 'No customers yet'}
+            </h2>
+            <p className="sub">
+              {view === 'archive'
+                ? 'Deleted accounts appear here for 30 days before being purged.'
+                : view === 'owners'
+                  ? 'Add a second owner so someone can reset your password if you are locked out.'
+                  : 'Add your first customer below.'}
+            </p>
           </div>
         ) : (
           <ul className="list">
-            {active.map((c) => <CustomerCard key={c.id} customer={c} />)}
+            {showing.map((c) => <CustomerCard key={c.id} customer={c} />)}
           </ul>
         )}
+      </div>
 
-        {gone.length > 0 && (
-          <>
-            <p className="eyebrow eyebrow-quiet" style={{ marginTop: 32 }}>Pending deletion</p>
-            <ul className="list">
-              {gone.map((c) => <CustomerCard key={c.id} customer={c} />)}
-            </ul>
-          </>
-        )}
-      </div>
-      <div className="dock">
-        <AddCustomer />
-      </div>
+      {view !== 'archive' && (
+        <div className="dock">
+          <AddCustomer />
+        </div>
+      )}
     </div>
   )
 }

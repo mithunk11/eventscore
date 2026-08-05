@@ -58,7 +58,7 @@ export default function LoginPage() {
     <div className="app">
       <div className="spot" />
       <div className="screen" style={{ paddingTop: 80 }}>
-        <Brand size={46} stacked />
+        <Brand size={64} stacked badge />
 
         {step === 'password' ? (
           <>

@@ -5,7 +5,7 @@ export default function HomePage() {
     <div className="app">
       <div className="spot" />
       <div className="screen" style={{ paddingTop: 90 }}>
-        <Brand size={30} />
+        <Brand size={32} />
         <p className="eyebrow" style={{ marginTop: 44 }}>Competition scoring</p>
         <h1 className="display d-xl">Scoring, without the paperwork.</h1>
         <p className="sub" style={{ marginBottom: 34 }}>

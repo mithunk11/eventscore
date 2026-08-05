@@ -90,21 +90,7 @@ html, body {
 
 /* ---------- Logo ---------- */
 
-.lockup { display: inline-flex; align-items: center; gap: 12px }
-.lockup-stacked { flex-direction: column; gap: 18px; align-items: flex-start }
-.mark {
-  display: grid; place-items: center; flex: 0 0 auto; border-radius: 28%;
-  background: linear-gradient(145deg, #3A2A5E, var(--ink));
-  box-shadow: 0 10px 26px -12px rgba(36,26,56,.6);
-}
-.mark-invert { background: var(--chalk) }
-.mb { transform-origin: 50% 100%; animation: rise .6s cubic-bezier(.2,.85,.2,1) both }
-.mb1 { fill: var(--rose-edge); animation-delay: .05s }
-.mb2 { fill: var(--amber-edge); animation-delay: .17s }
-.mb3 { fill: var(--teal-edge); animation-delay: .29s }
 @keyframes rise { from { transform: scaleY(0); opacity: 0 } to { transform: scaleY(1); opacity: 1 } }
-.wordmark { font-family: var(--font-display), Georgia, serif; font-weight: 600; letter-spacing: -.025em; line-height: 1; color: var(--ink) }
-.wordmark em { font-style: normal; color: var(--amber) }
 
 /* ---------- Type ---------- */
 
@@ -219,7 +205,6 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .total .eyebrow { color: var(--violet) }
 .total-value { font-family: var(--font-display), Georgia, serif; font-size: 30px; color: var(--violet) }
 
-.mark { font-family: var(--font-display), Georgia, serif; font-size: 19px; color: var(--amber) }
 .mark small { font-size: 11px; color: var(--muted) }
 
 .avatar { flex: 0 0 auto; width: 56px; height: 56px; border-radius: 16px; object-fit: cover; background: var(--sunk) }
@@ -300,7 +285,6 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .legal-nav a:hover { color: var(--amber) }
 
 .podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: end; margin-top: 10px }
-.plinth { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 16px 8px; border-radius: 20px; background: var(--sunk); text-align: center }
 .plinth-1 { padding-top: 30px; background: linear-gradient(160deg, var(--amber-soft), #FFE2B0) }
 .plinth-2 { padding-top: 22px; background: var(--violet-soft) }
 .plinth-3 { background: var(--rose-soft) }
@@ -338,11 +322,8 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .app-dark .sheet { background: linear-gradient(180deg, var(--lift), var(--riser)) }
 .app-dark .grab { background: rgba(242,236,255,.25) }
 .app-dark .greet-blank { background: var(--lift); color: #6B5F85 }
-.app-dark .mark { background: none; color: #FFB547 }
-.app-dark .mark small { color: #A99CC4 }
-.app-dark .wordmark { color: var(--chalk) }
-.app-dark .plinth { background: var(--riser) }
-.app-dark .plinth-1 { background: rgba(255,181,71,.14) }
+.app-dark .app-dark .mark small { color: #A99CC4 }
+.app-dark .app-dark .app-dark .plinth-1 { background: rgba(255,181,71,.14) }
 .app-dark .plinth-2 { background: rgba(155,110,224,.14) }
 .app-dark .plinth-3 { background: rgba(255,61,139,.12) }
 .app-dark .place, .app-dark .plinth-2 .place, .app-dark .plinth-3 .place { color: #FFB547 }
@@ -466,8 +447,7 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 
 @media (prefers-reduced-motion: reduce) {
   .spot, .sheet, .scrim, .bigplinth { animation: none !important }
-  .mb { animation: none !important; opacity: 1 !important }
-}
+  }
 
 /* ---------- Two-factor ---------- */
 
@@ -496,3 +476,65 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 }
 .acct-btn:hover { color: var(--violet); border-color: var(--violet-edge) }
 .acct-btn:disabled { opacity: .4 }
+
+/* ---------- Tabs ---------- */
+
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; padding: 5px; border-radius: 999px; background: var(--sunk) }
+.tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 42px; padding: 0 12px; border-radius: 999px;
+  color: var(--muted); font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: background .16s ease, color .16s ease;
+}
+.tab-on { background: var(--card); color: var(--ink); box-shadow: 0 2px 8px -4px rgba(36,26,56,.35) }
+.tab-n { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: var(--line); color: var(--muted) }
+.tab-on .tab-n { background: var(--amber-soft); color: var(--amber) }
+
+/* ---------- Podium mark ---------- */
+
+.podmark { display: grid; place-items: center; flex: 0 0 auto }
+
+.podmark-badge {
+  border-radius: 26%;
+  padding: 13%;
+  background: linear-gradient(155deg, #40305F 0%, var(--ink) 70%);
+  box-shadow:
+    0 14px 32px -14px rgba(36, 26, 56, .75),
+    0 0 0 1px rgba(255, 255, 255, .07) inset,
+    0 26px 60px -30px rgba(240, 169, 60, .85);
+}
+
+.pod {
+  transform-origin: 50% 100%;
+  animation: raise .7s cubic-bezier(.16,.9,.24,1) both;
+  filter: drop-shadow(0 3px 6px rgba(36, 26, 56, .22));
+}
+.pod1 { animation-delay: 0s }
+.pod2 { animation-delay: .13s }
+.pod3 { animation-delay: .26s }
+
+.podbase { fill: var(--ink) }
+.podmark-badge .podbase { fill: var(--paper) }
+.app-dark .podbase, .stagemode .podbase { fill: var(--chalk) }
+.app-dark .podmark-badge .podbase, .stagemode .podmark-badge .podbase { fill: var(--paper) }
+
+@keyframes raise {
+  from { transform: scaleY(.06); opacity: 0 }
+  to   { transform: scaleY(1); opacity: 1 }
+}
+
+.lockup { display: inline-flex; align-items: center; gap: 13px }
+.lockup-stacked { flex-direction: column; gap: 20px; align-items: flex-start }
+
+.wordmark {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600; letter-spacing: -.035em; line-height: 1;
+  color: var(--ink);
+}
+.wordmark em { font-style: normal; color: var(--amber) }
+.app-dark .wordmark, .stagemode .wordmark { color: var(--chalk) }
+.app-dark .wordmark em, .stagemode .wordmark em { color: #FFB547 }
+
+@media (prefers-reduced-motion: reduce) {
+  .pod { animation: none !important; opacity: 1 !important }
+}
