@@ -123,31 +123,36 @@ export async function submitRound(roundId: string) {
   if (!session) return { error: 'Your session expired.' }
   const { judge, event, db } = session
 
-  // Fetch everything independent in one go rather than one after another
-  const [catsRes, entriesRes, roundRes, judgesRes] = await Promise.all([
+  // Everything that does not depend on anything else, at once
+  const [cats, ents, roundRow, judgeRows] = await Promise.all([
     db.from('categories').select('id').eq('round_id', roundId),
     db.from('entries').select('id').eq('round_id', roundId),
     db.from('rounds').select('event_id, position').eq('id', roundId).maybeSingle(),
     db.from('judges').select('id').eq('event_id', judge.event_id).eq('status', 'active'),
   ])
 
-  const categories = catsRes.data ?? []
-  const entries = entriesRes.data ?? []
-  if (!categories.length) return { error: 'This round has no categories yet. Ask the organiser to add them.' }
-  if (!entries.length) return { error: 'No contestants are in this round yet.' }
+  const categories = cats.data ?? []
+  const entries = ents.data ?? []
+  if (!categories.length || !entries.length) return { error: 'This round is not ready.' }
 
-  // Anything the judge never touched counts as zero, so there is nothing
-  // to be "incomplete" — submission is never blocked on unmarked categories.
+  const entryIds = entries.map((e) => e.id)
+  const needComments = event.comments_mode === 'required'
 
-  if (event.comments_mode === 'required') {
-    const entryIds = entries.map((e) => e.id)
-    const { data: notes } = await db
-      .from('entry_comments').select('body')
-      .eq('judge_id', judge.id).in('entry_id', entryIds)
-    const written = (notes ?? []).filter((n) => n.body && n.body.trim().length > 0).length
-    if (written < entries.length) {
-      return { error: 'This event asks for a comment on every contestant.' }
-    }
+  const [mineRes, notesRes] = await Promise.all([
+    db.from('scores').select('value').eq('judge_id', judge.id).in('entry_id', entryIds),
+    needComments
+      ? db.from('entry_comments').select('body').eq('judge_id', judge.id).in('entry_id', entryIds)
+      : Promise.resolve({ data: [] as { body: string | null }[] }),
+  ])
+
+  const filled = (mineRes.data ?? []).filter((s) => s.value !== null).length
+  if (filled < entries.length * categories.length) {
+    return { error: 'Mark every category for every contestant before submitting.' }
+  }
+
+  if (needComments) {
+    const written = (notesRes.data ?? []).filter((n) => n.body && n.body.trim().length > 0).length
+    if (written < entries.length) return { error: 'This event asks for a comment on every contestant.' }
   }
 
   const { error: subError } = await db.from('submissions').upsert(
@@ -156,13 +161,12 @@ export async function submitRound(roundId: string) {
   )
   if (subError) return { error: subError.message }
 
-  const round = roundRes.data
+  const round = roundRow.data
   if (round) {
-    const judgeCount = (judgesRes.data ?? []).length
+    const judgeCount = (judgeRows.data ?? []).length
     const { count: subCount } = await db
       .from('submissions').select('judge_id', { count: 'exact', head: true }).eq('round_id', roundId)
 
-    // Synchronised events only open the next round once every judge is in
     const everyoneIn = (subCount ?? 0) >= judgeCount
     if (event.progression === 'independent' || everyoneIn) {
       const { data: next } = await db

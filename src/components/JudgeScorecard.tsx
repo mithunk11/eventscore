@@ -267,9 +267,9 @@ export function JudgeScorecard({
             <button className="btn btn-ghost" onClick={() => setIndex(index + 1)}>Next</button>
           )}
         </div>
-        <button className="btn btn-amber btn-full" disabled={!allDone || busy}
+        <button className="btn btn-amber btn-full" disabled={busy}
           onClick={() => setView('review')} style={{ marginTop: 10 }}>
-          {allDone ? 'Review my marks' : 'Scored ' + doneCount + ' of ' + people.length}
+          Review my marks
         </button>
       </div>
     </>
