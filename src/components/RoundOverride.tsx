@@ -34,16 +34,15 @@ export function RoundOverride({
       {!confirming ? (
         <>
           <p className="sub" style={{ margin: 0 }}>
-            Waiting on {missing.join(' and ')}. Nobody can move on until they submit.
+            Waiting on {missing.join(' and ')}. The round moves on once every judge submits. Only close early if someone genuinely cannot finish.
           </p>
           <button className="btn btn-ghost" style={{ minHeight: 40, fontSize: 13 }}
-            onClick={() => setConfirming(true)}>Close without them</button>
+            onClick={() => setConfirming(true)}>Judge cannot finish</button>
         </>
       ) : (
         <>
           <p className="sub" style={{ margin: 0 }}>
-            Close this round with {missing.length} judge{missing.length === 1 ? '' : 's'} missing?
-            Their marks will not count towards the result.
+            Close this round without {missing.join(' and ')}? Any marks they did enter will not count. Use this only if a phone has died or a judge has had to leave.
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-amber" style={{ minHeight: 40, fontSize: 13 }} disabled={busy}

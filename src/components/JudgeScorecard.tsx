@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { saveMark, saveComment, submitRound } from '@/app/judge/actions'
 
@@ -31,8 +31,10 @@ export function JudgeScorecard({
   const [notes, setNotes] = useState(initialComments)
   const [error, setError] = useState<string | null>(null)
   const [busy, startTask] = useTransition()
+  const submittingRef = useRef(false)
   const router = useRouter()
 
+  const soloJudge = panel.length <= 1
   const waitingOn = panel.filter((p) => !p.submitted).map((p) => p.name)
   const everyoneIn = waitingOn.length === 0
 
@@ -77,11 +79,20 @@ export function JudgeScorecard({
   }
 
   function submit() {
+    // A second tap while the first is in flight would queue another request
+    if (submittingRef.current) return
+    submittingRef.current = true
     setError(null)
     startTask(async () => {
-      const res = await submitRound(roundId)
-      if (res?.error) { setError(res.error); return }
-      router.refresh()
+      try {
+        const res = await submitRound(roundId)
+        if (res?.error) { setError(res.error); return }
+        router.refresh()
+      } catch {
+        setError('That did not go through. Check your connection and try again.')
+      } finally {
+        submittingRef.current = false
+      }
     })
   }
 
@@ -94,13 +105,15 @@ export function JudgeScorecard({
           <h1 className="display d-xl">{submitted ? 'Submitted' : 'Check your marks'}</h1>
           <p className="sub" style={{ marginBottom: 22 }}>
             {submitted
-              ? everyoneIn
-                ? 'Every judge is in.'
-                : 'Waiting for ' + waitingOn.join(' and ') + '.'
+              ? soloJudge
+                ? 'Submitted. You are the only judge, so this round is complete.'
+                : everyoneIn
+                  ? 'Every judge is in.'
+                  : 'Waiting for ' + waitingOn.join(' and ') + '.'
               : 'Tap anyone to change a mark before you submit.'}
           </p>
 
-          {submitted && !everyoneIn && (
+          {submitted && !everyoneIn && !soloJudge && (
             <div className="waiting">
               {panel.map((p) => (
                 <span key={p.name} className={p.submitted ? 'who who-in' : 'who'}>

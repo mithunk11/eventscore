@@ -84,6 +84,10 @@ export default function LoginPage() {
                 {loading ? 'Signing in' : 'Sign in'}
               </button>
             </form>
+
+            <p className="sub judgeline">
+              Judging an event? <a href="/judge">Enter your event code and PIN</a>.
+            </p>
           </>
         ) : (
           <>

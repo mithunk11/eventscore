@@ -6,17 +6,17 @@
   --card: #FFFFFF;
   --sunk: #F3EDE4;
   --ink: #241A38;
-  --muted: #6B6478;
-  --faint: #A8A0B4;
+  --muted: #55506A;
+  --faint: #8B849B;
   --line: rgba(36, 26, 56, 0.10);
   --line-hi: rgba(36, 26, 56, 0.20);
   --glass: rgba(253, 249, 244, 0.86);
 
   /* Colour carries meaning: rounds amber, contestants rose, judges teal */
-  --amber: #C2700B;   --amber-soft: #FFF0D9;   --amber-edge: #F0A93C;
-  --rose: #C41F63;    --rose-soft: #FEEAF1;    --rose-edge: #EE5B93;
-  --teal: #0A7A66;    --teal-soft: #DFF5F0;    --teal-edge: #2FC0A5;
-  --violet: #6438A8;  --violet-soft: #F0E9FD;  --violet-edge: #9B6EE0;
+  --amber: #9A5600;   --amber-soft: #FFF0D9;   --amber-edge: #F0A93C;
+  --rose: #A81551;    --rose-soft: #FEEAF1;    --rose-edge: #EE5B93;
+  --teal: #066252;    --teal-soft: #DFF5F0;    --teal-edge: #2FC0A5;
+  --violet: #522D8C;  --violet-soft: #F0E9FD;  --violet-edge: #9B6EE0;
 
   /* Dark, kept for the judge scorecard and stage mode */
   --house: #16101F; --riser: #221733; --lift: #2C1F41; --chalk: #F2ECFF;
@@ -618,12 +618,12 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 }
 .site > * { position: relative; z-index: 1 }
 
-.site-nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 1120px; margin: 0 auto; padding: 22px 24px }
+.site-nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 1120px; margin: 0 auto; padding: 16px 24px }
 .site-nav nav { display: flex; align-items: center; gap: 22px }
 .site-nav nav a { font-size: 14px; color: var(--muted); text-decoration: none }
 .site-nav nav a:hover { color: var(--ink) }
 
-.hero { max-width: 1120px; margin: 0 auto; padding: 60px 24px 80px; text-align: center }
+.hero { max-width: 1120px; margin: 0 auto; padding: 18px 24px 72px; text-align: center }
 .hero-title { font-size: clamp(42px, 8vw, 84px); letter-spacing: -.035em; margin: 6px 0 22px }
 .hero-sub { max-width: 560px; margin: 0 auto 34px; font-size: clamp(16px, 2vw, 19px); line-height: 1.6; color: var(--muted) }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center }
@@ -679,3 +679,236 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .enq-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px }
 .enq-body { margin: 12px 0; padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: 14px; line-height: 1.6; white-space: pre-wrap }
 .enq-foot { display: flex; flex-wrap: wrap; gap: 8px }
+
+.judgeline { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px }
+.judgeline a { color: var(--amber) }
+
+/* ---------- Event logo ---------- */
+
+.evlogo { max-width: 160px; max-height: 80px; object-fit: contain; margin-bottom: 18px; display: block }
+
+/* ---------- Full rankings ---------- */
+
+.rank-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 34px 0 16px; flex-wrap: wrap }
+
+.ranktable-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; background: var(--card) }
+.ranktable { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 340px }
+.ranktable th {
+  padding: 12px 10px; text-align: right;
+  border-bottom: 2px solid var(--amber-edge);
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  white-space: nowrap;
+}
+.ranktable th.tl, .ranktable td.tl { text-align: left }
+.ranktable td { padding: 12px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap }
+.ranktable tr:last-child td { border-bottom: 0 }
+.ranktable tr.top td { background: var(--amber-soft) }
+.ranktable td.out { color: var(--faint) }
+.ranktable td.grand { font-family: var(--font-display), Georgia, serif; font-size: 15px; color: var(--amber) }
+
+.rankname { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display), Georgia, serif; font-size: 15px }
+.rankbib {
+  display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px;
+  border-radius: 999px; background: var(--rose); color: #fff; font-size: 11px; font-weight: 700;
+  font-family: var(--font-body), sans-serif;
+}
+
+/* ---------- Sheet close ---------- */
+
+.sheet-x {
+  position: absolute; top: 12px; right: 14px; z-index: 2;
+  width: 38px; height: 38px; padding: 0;
+  border: 0; border-radius: 50%;
+  background: var(--sunk); color: var(--muted);
+  font-size: 22px; line-height: 1; cursor: pointer;
+}
+.sheet-x:hover { background: var(--line); color: var(--ink) }
+.app-dark .sheet-x { background: rgba(242,236,255,.10); color: var(--chalk) }
+.sheet { position: relative }
+
+/* ---------- Acceptance records ---------- */
+
+.accept-rec { padding: 16px; border: 1px solid var(--line); border-left: 4px solid var(--violet-edge); border-radius: 18px; background: var(--card) }
+.accept-items { list-style: none; margin: 14px 0; padding: 0 }
+.accept-items li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--muted) }
+.accept-items li:last-child { border-bottom: 0 }
+
+/* ---------- Tighter hero on the public site ---------- */
+
+.hero .eyebrow { margin-bottom: 12px }
+
+/* ============================================================
+   CONTRAST AUDIT
+   Every pair below was checked against its own background.
+   Body text clears 4.5:1, large text 3:1.
+   ============================================================ */
+
+/* Chest-number chips were pale-on-dark and washed out in stage lighting */
+.chip {
+  background: #2E2145;
+  border-color: rgba(242, 236, 255, .30);
+  color: #E6DEF7;
+  font-weight: 600;
+}
+.chip-part {
+  background: rgba(255, 61, 139, .28);
+  border-color: #FF7DAE;
+  color: #FFD3E4;
+}
+.chip-done {
+  background: rgba(70, 229, 208, .26);
+  border-color: #46E5D0;
+  color: #C4FBF0;
+}
+.chip-now {
+  background: #FFB547;
+  border-color: #FFB547;
+  color: #1A1207;
+  outline: 3px solid rgba(255, 181, 71, .45);
+  outline-offset: 2px;
+}
+
+/* "Your total" was grey on a grey panel */
+.running {
+  background: rgba(255, 181, 71, .12);
+  border-color: rgba(255, 181, 71, .35);
+}
+.running .label { color: #FFD79A }
+.running-value { color: #FFC46B }
+.running-value small { color: #CBBBE4 }
+
+/* Labels and secondary text on dark: was #A99CC4 at 4.1:1 */
+.app-dark .sub,
+.app-dark .card-meta,
+.app-dark .label,
+.app-dark .nav-count,
+.app-dark .cat-value small { color: #C3B8D9 }
+
+.app-dark .eyebrow { color: #FFC46B }
+.app-dark .mark { color: #FFC46B }
+.app-dark .running-value { color: #FFC46B }
+
+/* Steppers needed a clearer edge in a dark room */
+.step-btn {
+  background: #32244C;
+  border-color: rgba(242, 236, 255, .35);
+  color: #F2ECFF;
+  font-weight: 600;
+}
+.step-btn:active { background: #46345F }
+
+/* Light theme: quiet buttons were too quiet */
+.btn-quiet { color: #55506A }
+.btn-quiet:hover { color: var(--ink) }
+
+/* Placeholders sat below the readable threshold */
+.input::placeholder { color: #7A7391 }
+
+/* Tag pills */
+.tag-final { background: var(--teal); color: #fff }
+.tab-n { background: #E4DED5; color: #55506A }
+.tab-on .tab-n { background: var(--amber); color: #fff }
+
+/* Card meta on light cards */
+.card-meta { color: #55506A }
+.stat-label { font-weight: 700 }
+
+/* Judge status pills */
+.who { border-color: var(--line-hi); color: #55506A }
+.who-in { background: var(--teal); border-color: var(--teal); color: #fff }
+
+/* ---------- Rankings: room to breathe ---------- */
+
+.plinth {
+  gap: 10px;
+  padding: 20px 10px 18px;
+}
+.plinth-1 { padding-top: 34px }
+.plinth-2 { padding-top: 26px }
+
+.place {
+  display: grid; place-items: center;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--amber); color: #fff;
+  font-size: 19px; line-height: 1;
+  box-shadow: 0 4px 12px -4px rgba(154, 86, 0, .6);
+}
+.plinth-2 .place { background: var(--violet); box-shadow: 0 4px 12px -4px rgba(82, 45, 140, .6) }
+.plinth-3 .place { background: var(--rose); box-shadow: 0 4px 12px -4px rgba(168, 21, 81, .6) }
+
+.plinth-name {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px; line-height: 1.35; font-weight: 600;
+  color: var(--ink);
+}
+
+.plinth-score {
+  display: block;
+  margin-top: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .75);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.app-dark .plinth-name { color: var(--chalk) }
+.app-dark .plinth-score { background: rgba(0, 0, 0, .3); color: #FFC46B }
+.app-dark .place { color: #1A1207; background: #FFB547 }
+.app-dark .plinth-2 .place { background: #9B6EE0; color: #fff }
+.app-dark .plinth-3 .place { background: #EE5B93; color: #fff }
+
+/* Stage mode gets the same separation */
+.bigplinth { gap: 14px }
+.bigplace {
+  display: grid; place-items: center;
+  width: clamp(44px, 6vw, 74px); height: clamp(44px, 6vw, 74px);
+  border-radius: 50%;
+  background: #FFB547; color: #1A1207;
+}
+.bigplinth-2 .bigplace { background: #9B6EE0; color: #fff }
+.bigplinth-3 .bigplace { background: #EE5B93; color: #fff }
+.bigname { display: block; margin-top: 4px }
+.bigscore {
+  display: inline-block; margin-top: 6px;
+  padding: 5px 16px; border-radius: 999px;
+  background: rgba(255, 255, 255, .12);
+  color: #FFD79A;
+}
+
+.waiting-note {
+  margin-top: 16px; padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--amber-soft);
+  border: 1px solid rgba(154, 86, 0, .25);
+  color: #6E3E00;
+  font-size: 13px; line-height: 1.55;
+}
+
+/* ---------- Cross-browser ---------- */
+
+/* iOS Safari zooms any input under 16px on focus */
+input, textarea, select { font-size: 16px }
+
+/* dvh is unsupported on older Android Chrome */
+@supports not (height: 100dvh) {
+  .app, .stagemode, .site { min-height: 100vh }
+}
+
+/* backdrop-filter is missing on some Android browsers, leaving unreadable bars */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .topbar, .dock { background: var(--paper) }
+  .app-dark .topbar, .app-dark .dock { background: var(--riser) }
+}
+
+/* Safari needs the prefix for sticky */
+.topbar { position: -webkit-sticky; position: sticky }
+
+/* iOS momentum scrolling inside the sheet */
+.sheet { -webkit-overflow-scrolling: touch }
+
+/* Stop iOS rubber-banding behind fixed elements */
+.app { overscroll-behavior: contain }

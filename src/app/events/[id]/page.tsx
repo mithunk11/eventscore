@@ -82,6 +82,19 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
           </li>
         </ul>
 
+        <ul className="list" style={{ marginBottom: 30 }}>
+          <li>
+            <a className="step" href={'/events/' + id + '/results'}>
+              <span className="dot dot-done">&#9679;</span>
+              <span className="card-body">
+                <span className="card-title d-m">Results</span>
+                <span className="card-meta">Podium, full rankings, export</span>
+              </span>
+              <span className="chev">&rsaquo;</span>
+            </a>
+          </li>
+        </ul>
+
         <p className="eyebrow">The running order</p>
         {roundCount > 0 && !hasFinal && (
           <p className="alert">No round ends the event. Mark your last round as the final.</p>
