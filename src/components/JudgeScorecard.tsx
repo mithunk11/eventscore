@@ -48,10 +48,18 @@ export function JudgeScorecard({
   const person = people[index]
   const mine = marks[person.entryId] ?? {}
 
-  const complete = (id: string) => categories.every((c) => typeof (marks[id] ?? {})[c.id] === 'number')
-  const partial = (id: string) => categories.some((c) => typeof (marks[id] ?? {})[c.id] === 'number')
-  const totalFor = (id: string) =>
-    categories.reduce((s, c) => s + (typeof (marks[id] ?? {})[c.id] === 'number' ? ((marks[id] ?? {})[c.id] as number) : 0), 0)
+  // Postgres returns numeric columns as strings, so never test with typeof
+  const has = (id: string, catId: string) => {
+    const v = (marks[id] ?? {})[catId]
+    return v !== null && v !== undefined && !Number.isNaN(Number(v))
+  }
+  const val = (id: string, catId: string) => {
+    const v = (marks[id] ?? {})[catId]
+    return v === null || v === undefined ? 0 : Number(v)
+  }
+  const complete = (id: string) => categories.every((c) => has(id, c.id))
+  const partial = (id: string) => categories.some((c) => has(id, c.id))
+  const totalFor = (id: string) => categories.reduce((s, c) => s + val(id, c.id), 0)
 
   const doneCount = people.filter((p) => complete(p.entryId)).length
   const allDone = doneCount === people.length
@@ -136,7 +144,7 @@ export function JudgeScorecard({
                   <span className="card-body">
                     <span className="card-title">{p.name}</span>
                     <span className="card-meta nums">
-                      {categories.map((c) => (marks[p.entryId] ?? {})[c.id] ?? '\u2014').join('  \u00B7  ')}
+                      {categories.map((c) => has(p.entryId, c.id) ? val(p.entryId, c.id) : '\u2014').join('  \u00B7  ')}
                     </span>
                   </span>
                   <span className="mark nums">{totalFor(p.entryId)}<small>/{maxTotal}</small></span>
@@ -209,23 +217,23 @@ export function JudgeScorecard({
         </div>
 
         {categories.map((c) => {
-          const v = mine[c.id]
-          const has = typeof v === 'number'
+          const marked = has(person.entryId, c.id)
+          const v = val(person.entryId, c.id)
           return (
             <div key={c.id} className="cat">
               <div className="cat-top">
                 <span className="cat-name">{c.name}</span>
-                <span className="cat-value nums">{has ? v : '\u2014'}<small> / {c.max_score}</small></span>
+                <span className="cat-value nums">{marked ? v : '\u2014'}<small> / {c.max_score}</small></span>
               </div>
               <div className="stepper">
                 <button type="button" className="step-btn"
-                  onClick={() => change(c.id, (has ? (v as number) : 0) - 0.5, Number(c.max_score))}>&minus;</button>
+                  onClick={() => change(c.id, v - 0.5, Number(c.max_score))}>&minus;</button>
                 <input className="slider" type="range" min={0} max={Number(c.max_score)} step={0.5}
-                  value={has ? (v as number) : 0}
+                  value={v}
                   onChange={(e) => change(c.id, Number(e.target.value), Number(c.max_score))}
                   aria-label={c.name} />
                 <button type="button" className="step-btn"
-                  onClick={() => change(c.id, (has ? (v as number) : 0) + 0.5, Number(c.max_score))}>+</button>
+                  onClick={() => change(c.id, v + 0.5, Number(c.max_score))}>+</button>
               </div>
             </div>
           )
