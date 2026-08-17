@@ -193,7 +193,7 @@ export function JudgeScorecard({
         <div className="chips">
           {people.map((p, i) => (
             <button key={p.entryId} type="button"
-              className={'chip' + (complete(p.entryId) ? ' chip-done' : partial(p.entryId) ? ' chip-part' : '') + (i === index ? ' chip-now' : '')}
+              className={'chip' + (i === index ? ' chip-now' : '')}
               onClick={() => setIndex(i)}>
               {p.bib ?? i + 1}
             </button>
@@ -258,8 +258,14 @@ export function JudgeScorecard({
       <div className="dock">
         <div className="nav-row">
           <button className="btn btn-ghost" disabled={index === 0} onClick={() => setIndex(index - 1)}>Back</button>
-          <span className="nav-count nums">{index + 1} of {people.length}</span>
-          <button className="btn btn-ghost" disabled={index === people.length - 1} onClick={() => setIndex(index + 1)}>Next</button>
+          <span className="nav-count nums">
+            {index === people.length - 1 ? 'Last of ' + people.length : (index + 1) + ' of ' + people.length}
+          </span>
+          {index === people.length - 1 ? (
+            <button className="btn btn-ghost" onClick={() => setView('review')}>Review</button>
+          ) : (
+            <button className="btn btn-ghost" onClick={() => setIndex(index + 1)}>Next</button>
+          )}
         </div>
         <button className="btn btn-amber btn-full" disabled={!allDone || busy}
           onClick={() => setView('review')} style={{ marginTop: 10 }}>
