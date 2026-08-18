@@ -592,12 +592,17 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 
 .site { position: relative; min-height: 100dvh; overflow-x: hidden; background: var(--paper) }
 .site-glow {
-  position: absolute; z-index: 0; top: 0; left: 50%;
-  width: 140vw; max-width: 1400px; height: 70vh;
-  transform: translateX(-50%); pointer-events: none;
+  position: fixed;
+  z-index: 0;
+  top: -40vh; left: 50%;
+  width: 130vw; max-width: 1600px;
+  height: 110vh;
+  transform: translateX(-50%);
+  pointer-events: none;
   background:
-    radial-gradient(ellipse at 38% 20%, rgba(240,169,60,.30) 0%, transparent 55%),
-    radial-gradient(ellipse at 66% 30%, rgba(238,91,147,.22) 0%, transparent 58%);
+    radial-gradient(ellipse at 38% 40%, rgba(240,169,60,.34) 0%, transparent 55%),
+    radial-gradient(ellipse at 66% 46%, rgba(238,91,147,.26) 0%, transparent 56%),
+    radial-gradient(ellipse at 48% 62%, rgba(47,192,165,.20) 0%, transparent 52%);
   filter: blur(60px);
 }
 .site > * { position: relative; z-index: 1 }
@@ -1277,3 +1282,8 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
   .dot-pulse { animation: none; opacity: 1 }
   .dock.working::before { animation: none; background-position: 0 0 }
 }
+
+/* The site wrapper must not be stretched by anything decorative */
+.site { position: relative; isolation: isolate }
+.site > * { position: relative; z-index: 1 }
+.site-nav { padding-top: 20px }
