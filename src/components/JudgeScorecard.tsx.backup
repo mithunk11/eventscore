@@ -39,7 +39,6 @@ export function JudgeScorecard({
     setIndex(0)
     setMarks(initial)
     setView(submitted && anyMarks ? 'review' : 'card')
-    // Only roundId: `initial` is a fresh object each render and would loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundId])
   const [marks, setMarks] = useState(initial)
@@ -59,43 +58,11 @@ export function JudgeScorecard({
   const everyoneIn = waitingOn.length === 0
 
   // While waiting on other judges, quietly check for their submissions.
-  // Poll for other judges while waiting.
-  //
-  // `router` must NOT be a dependency: Next.js hands back a new router object
-  // on every render, and router.refresh() causes a render, so the effect kept
-  // rebuilding its interval and requests compounded until the tab died.
-  //
-  // The interval is held in a ref and only ever started once per wait.
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const routerRef = useRef(router)
-  routerRef.current = router
-
   useEffect(() => {
-    const shouldPoll = submitted && !everyoneIn
-
-    if (!shouldPoll) {
-      if (pollRef.current) {
-        clearInterval(pollRef.current)
-        pollRef.current = null
-      }
-      return
-    }
-
-    if (pollRef.current) return   // already polling
-
-    pollRef.current = setInterval(() => {
-      // Do not poll a tab nobody is looking at
-      if (typeof document !== 'undefined' && document.hidden) return
-      routerRef.current.refresh()
-    }, 10000)
-
-    return () => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current)
-        pollRef.current = null
-      }
-    }
-  }, [submitted, everyoneIn])
+    if (!submitted || everyoneIn) return
+    const t = setInterval(() => router.refresh(), 8000)
+    return () => clearInterval(t)
+  }, [submitted, everyoneIn, router])
 
   const person = people[index]
   const mine = marks[person.entryId] ?? {}
