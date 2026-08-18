@@ -36,7 +36,7 @@ export default async function JudgeResultsPage() {
 
       <div className="screen">
         <p className="eyebrow">{final.name}</p>
-        <h1 className="display d-xl">The podium</h1>
+        <h1 className="display d-xl">Final rankings</h1>
         <p className="sub" style={{ marginBottom: 26 }}>
           {judgesIn < (judgeTotal ?? 0)
             ? judgesIn + ' of ' + judgeTotal + ' judges in. This updates as the rest submit.'
@@ -59,15 +59,15 @@ export default async function JudgeResultsPage() {
                     {w.photo && photos[w.photo]
                       ? <img className="plinth-photo" src={photos[w.photo]} alt="" />
                       : <div className="plinth-photo plinth-blank">{w.name.slice(0, 1).toUpperCase()}</div>}
-                    <span className="place nums">{pos + 1}</span>
+                    <span className="place nums">{String(pos + 1)}</span>
                     <span className="plinth-name">{w.name}</span>
-                    {event.show_scores && <span className="plinth-score nums">{w.score.toFixed(1)}%</span>}
+                    {event.show_scores && <span className="plinth-score nums">{Math.round(w.rawMarks * 10) / 10}</span>}
                   </div>
                 )
               })}
             </div>
 
-            <p className="eyebrow" style={{ marginTop: 34 }}>Full standings</p>
+            <p className="eyebrow" style={{ marginTop: 34 }}>Everyone, in order</p>
             <ul className="list">
               {standings.map((s, i) => (
                 <li key={s.entryId} className="card">
@@ -76,7 +76,7 @@ export default async function JudgeResultsPage() {
                     <span className="card-title">{s.name}</span>
                     <span className="card-meta nums">{s.judgesIn} judge{s.judgesIn === 1 ? '' : 's'} scored</span>
                   </span>
-                  {event.show_scores && <span className="mark nums">{s.score.toFixed(1)}<small>%</small></span>}
+                  {event.show_scores && <span className="mark nums">{Math.round(s.rawMarks * 10) / 10}<small>/{s.maxMarks}</small></span>}
                 </li>
               ))}
             </ul>

@@ -54,7 +54,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                     {w.photo && photos[w.photo]
                       ? <img className="plinth-photo" src={photos[w.photo]} alt="" />
                       : <div className="plinth-photo plinth-blank">{w.name.slice(0, 1).toUpperCase()}</div>}
-                    <span className="place nums">{pos + 1}</span>
+                    <span className="place nums">{String(pos + 1)}</span>
                     <span className="plinth-name">{w.name}</span>
                     {event.show_scores && (
                       <span className="plinth-score nums">{Math.round(w.grandTotal)}</span>

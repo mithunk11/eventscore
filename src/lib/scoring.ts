@@ -6,7 +6,9 @@ export type Standing = {
   name: string
   bib: string | null
   photo: string | null
-  score: number
+  score: number        // percentage, used for ranking across rounds
+  rawMarks: number     // actual marks, averaged across judges
+  maxMarks: number     // the most available in this round
   judgesIn: number
 }
 
@@ -46,8 +48,10 @@ export async function roundStandings(db: SupabaseClient, roundId: string): Promi
   }
 
   const submitted = Array.from(new Set((subsRes.data ?? []).map((s) => s.judge_id)))
+  const maxMarks = categories.reduce((acc, c) => acc + (Number(c.max_score) || 0), 0)
+
   if (submitted.length === 0) {
-    return entries.map((e) => ({ ...shell(e), score: 0, judgesIn: 0 }))
+    return entries.map((e) => ({ ...shell(e), score: 0, rawMarks: 0, maxMarks, judgesIn: 0 }))
   }
 
   const { data: scores } = await db
@@ -66,21 +70,31 @@ export async function roundStandings(db: SupabaseClient, roundId: string): Promi
   }
 
   const out: Standing[] = entries.map((e) => {
-    const perJudge = submitted.map((judgeId) => {
+    const perJudgePct: number[] = []
+    const perJudgeRaw: number[] = []
+
+    for (const judgeId of submitted) {
       const mine = lookup.get(judgeId)?.get(e.id)
-      const sum = categories.reduce((acc, c) => {
+      let pct = 0
+      let raw = 0
+      for (const c of categories) {
         const mark = mine?.get(c.id) ?? 0        // missing means zero
-        const max = Number(c.max_score) || 1
-        return acc + mark / max
-      }, 0)
-      return (sum / categories.length) * 100
-    })
+        raw += mark
+        pct += mark / (Number(c.max_score) || 1)
+      }
+      perJudgePct.push((pct / categories.length) * 100)
+      perJudgeRaw.push(raw)
+    }
 
-    const score = perJudge.length
-      ? perJudge.reduce((a, b) => a + b, 0) / perJudge.length
-      : 0
+    const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0)
 
-    return { ...shell(e), score, judgesIn: perJudge.length }
+    return {
+      ...shell(e),
+      score: mean(perJudgePct),
+      rawMarks: mean(perJudgeRaw),
+      maxMarks,
+      judgesIn: perJudgePct.length,
+    }
   })
 
   return out.sort((a, b) => b.score - a.score || Number(a.bib ?? 0) - Number(b.bib ?? 0))

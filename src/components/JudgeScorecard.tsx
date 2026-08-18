@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { saveMark, saveComment, submitRound } from '@/app/judge/actions'
+import { saveMarks, saveComment, submitRound } from '@/app/judge/actions'
 
 type Category = { id: string; name: string; max_score: number }
 type Person = { entryId: string; name: string; bib: string | null; description: string | null; photo: string | null }
@@ -45,6 +45,8 @@ export function JudgeScorecard({
   const [error, setError] = useState<string | null>(null)
   const [busy, startTask] = useTransition()
   const submittingRef = useRef(false)
+  const pendingRef = useRef<Map<string, { entryId: string; categoryId: string; value: number }>>(new Map())
+  const flushRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [stage, setStage] = useState('')
   const router = useRouter()
@@ -84,10 +86,19 @@ export function JudgeScorecard({
     if (submitted) return
     const clamped = Math.max(0, Math.min(max, Math.round(next * 2) / 2))
     setMarks((prev) => ({ ...prev, [person.entryId]: { ...(prev[person.entryId] ?? {}), [categoryId]: clamped } }))
-    startTask(async () => {
-      const res = await saveMark(person.entryId, categoryId, clamped)
-      if (res?.error) setError(res.error)
+    // Queue it and send in one batch shortly after the judge stops moving
+    pendingRef.current.set(person.entryId + '|' + categoryId, {
+      entryId: person.entryId, categoryId, value: clamped,
     })
+    if (flushRef.current) clearTimeout(flushRef.current)
+    flushRef.current = setTimeout(() => {
+      const rows = Array.from(pendingRef.current.values())
+      pendingRef.current.clear()
+      startTask(async () => {
+        const res = await saveMarks(rows)
+        if (res?.error) setError(res.error)
+      })
+    }, 500)
   }
 
   function writeNote(body: string) {
@@ -109,6 +120,11 @@ export function JudgeScorecard({
     setStage('Saving your marks')
 
     try {
+      if (flushRef.current) clearTimeout(flushRef.current)
+      const rows = Array.from(pendingRef.current.values())
+      pendingRef.current.clear()
+      if (rows.length > 0) await saveMarks(rows)
+
       const res = await submitRound(roundId)
 
       if (res?.error) {

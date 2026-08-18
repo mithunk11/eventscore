@@ -105,6 +105,56 @@ export async function saveMark(entryId: string, categoryId: string, value: numbe
   return { ok: true }
 }
 
+/**
+ * Saves several marks in one request. Dragging a slider fires many changes;
+ * sending one request each is what made scoring feel slow.
+ */
+export async function saveMarks(
+  rows: { entryId: string; categoryId: string; value: number }[]
+) {
+  if (rows.length === 0) return { ok: true }
+
+  const session = await getJudgeSession()
+  if (!session) return { error: 'Your session expired.' }
+  const { judge, db } = session
+
+  const entryIds = Array.from(new Set(rows.map((r) => r.entryId)))
+  const { data: entries } = await db
+    .from('entries').select('id, round_id, rounds(event_id)').in('id', entryIds)
+
+  const mine = new Set(
+    (entries ?? [])
+      .filter((e) => (e.rounds as unknown as { event_id: string }).event_id === judge.event_id)
+      .map((e) => e.id)
+  )
+  const roundIds = Array.from(new Set((entries ?? []).map((e) => e.round_id)))
+
+  const { data: subs } = await db
+    .from('submissions').select('round_id').eq('judge_id', judge.id).in('round_id', roundIds)
+  const locked = new Set((subs ?? []).map((s) => s.round_id))
+  const lockedEntries = new Set(
+    (entries ?? []).filter((e) => locked.has(e.round_id)).map((e) => e.id)
+  )
+
+  const payload = rows
+    .filter((r) => mine.has(r.entryId) && !lockedEntries.has(r.entryId))
+    .map((r) => ({
+      judge_id: judge.id,
+      entry_id: r.entryId,
+      category_id: r.categoryId,
+      value: r.value,
+      updated_at: new Date().toISOString(),
+    }))
+
+  if (payload.length === 0) return { ok: true }
+
+  const { error } = await db.from('scores').upsert(payload, {
+    onConflict: 'judge_id,entry_id,category_id',
+  })
+  if (error) return { error: error.message }
+  return { ok: true }
+}
+
 export async function saveComment(entryId: string, body: string) {
   const session = await getJudgeSession()
   if (!session) return { error: 'Your session expired.' }
