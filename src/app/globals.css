@@ -1353,3 +1353,34 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
 .tienote p:last-child { margin-bottom: 0 }
 .app-dark .tienote { background: rgba(255,181,71,.12); border-color: rgba(255,181,71,.3) }
 .app-dark .tienote p { color: #FFD79A }
+
+/* ---------- Sync state ---------- */
+
+.syncbadge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  white-space: nowrap;
+  animation: fadein .2s ease both;
+}
+.syncbadge-saving  { background: var(--sunk); color: var(--muted) }
+.syncbadge-saved   { background: var(--teal); color: #fff }
+.syncbadge-offline { background: var(--amber); color: #fff }
+.syncbadge-error   { background: var(--rose); color: #fff }
+
+.app-dark .syncbadge-saving { background: rgba(242,236,255,.16); color: #C3B8D9 }
+
+.wifi-off {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.offline-banner {
+  margin-bottom: 18px; padding: 13px 15px;
+  border-radius: 14px;
+  background: var(--amber);
+  color: #fff;
+  font-size: 13px; line-height: 1.5;
+}
+.offline-banner strong { display: block; margin-bottom: 2px }

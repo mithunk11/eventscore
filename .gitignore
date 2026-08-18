@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.backup
+
+# Database backups are committed on purpose
+!backups/
+*.backup

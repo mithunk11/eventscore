@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { SaveState } from '@/components/Loading'
+import { useMarkSync } from '@/components/useMarkSync'
+import { SyncBadge } from '@/components/SyncBadge'
 import { saveMarks, saveComment, submitRound } from '@/app/judge/actions'
 
 type Category = { id: string; name: string; max_score: number }
@@ -45,7 +46,7 @@ export function JudgeScorecard({
   const [marks, setMarks] = useState(initial)
   const [notes, setNotes] = useState(initialComments)
   const [error, setError] = useState<string | null>(null)
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const sync = useMarkSync()
   const [busy, startTask] = useTransition()
   const submittingRef = useRef(false)
   const pendingRef = useRef<Map<string, { entryId: string; categoryId: string; value: number }>>(new Map())
@@ -120,23 +121,13 @@ export function JudgeScorecard({
   function change(categoryId: string, next: number, max: number) {
     if (submitted) return
     const clamped = Math.max(0, Math.min(max, Math.round(next * 2) / 2))
-    setMarks((prev) => ({ ...prev, [person.entryId]: { ...(prev[person.entryId] ?? {}), [categoryId]: clamped } }))
-    // Queue it and send in one batch shortly after the judge stops moving
-    pendingRef.current.set(person.entryId + '|' + categoryId, {
-      entryId: person.entryId, categoryId, value: clamped,
-    })
-    if (flushRef.current) clearTimeout(flushRef.current)
-    flushRef.current = setTimeout(() => {
-      const rows = Array.from(pendingRef.current.values())
-      pendingRef.current.clear()
-      setSaveState('saving')
-      startTask(async () => {
-        const res = await saveMarks(rows)
-        if (res?.error) { setError(res.error); setSaveState('error'); return }
-        setSaveState('saved')
-        setTimeout(() => setSaveState('idle'), 1800)
-      })
-    }, 500)
+
+    // The screen updates at once. Reaching the server is the queue's problem.
+    setMarks((prev) => ({
+      ...prev,
+      [person.entryId]: { ...(prev[person.entryId] ?? {}), [categoryId]: clamped },
+    }))
+    sync.record(person.entryId, categoryId, clamped)
   }
 
   function writeNote(body: string) {
@@ -158,10 +149,14 @@ export function JudgeScorecard({
     setStage('Saving your marks')
 
     try {
-      if (flushRef.current) clearTimeout(flushRef.current)
-      const rows = Array.from(pendingRef.current.values())
-      pendingRef.current.clear()
-      if (rows.length > 0) await saveMarks(rows)
+      const stillWaiting = await sync.flushNow()
+      if (stillWaiting > 0) {
+        setError('Some marks have not reached the server yet. Check your connection and try again.')
+        setSubmitting(false)
+        submittingRef.current = false
+        setStage('')
+        return
+      }
 
       const res = await submitRound(roundId)
 
@@ -278,6 +273,13 @@ export function JudgeScorecard({
   return (
     <>
       <div className="screen">
+        {sync.state === 'offline' && (
+          <div className="offline-banner">
+            <strong>No connection.</strong> Keep marking. Everything is saved on this
+            device and will be sent the moment the signal returns.
+          </div>
+        )}
+
         <p className="eyebrow nums">
           Round {String(roundPosition).padStart(2, '0')} &middot; {roundName}{isFinal ? ' \u00B7 Final' : ''}
         </p>
@@ -306,7 +308,7 @@ export function JudgeScorecard({
         <div className="running">
           <span className="label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
             Your total
-            <SaveState state={saveState} />
+            <SyncBadge state={sync.state} waiting={sync.waiting} />
           </span>
           <span className="running-value nums">{total}<small> / {maxTotal}</small></span>
         </div>

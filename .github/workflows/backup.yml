@@ -1,0 +1,50 @@
+name: Backup database
+
+on:
+  schedule:
+    - cron: "0 3 * * *"     # every day at 03:00 UTC
+  workflow_dispatch:         # or run it by hand from the Actions tab
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Install the Postgres client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+
+      - name: Dump the database
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p backups
+          STAMP=$(date +%Y-%m-%d)
+          pg_dump "$DB_URL" --no-owner --no-acl --clean --if-exists \
+            > "backups/eventscore-$STAMP.sql"
+          gzip -f "backups/eventscore-$STAMP.sql"
+          ls -lh backups/
+
+      - name: Keep the last 30 days only
+        run: |
+          cd backups
+          ls -1t *.sql.gz 2>/dev/null | tail -n +31 | xargs -r rm --
+          ls -1 *.sql.gz | wc -l
+
+      - name: Commit it
+        run: |
+          git config user.name "EventScore backup"
+          git config user.email "actions@github.com"
+          git add backups/
+          if git diff --staged --quiet; then
+            echo "Nothing changed"
+          else
+            git commit -m "Database backup $(date +%Y-%m-%d)"
+            git push
+          fi
