@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p backups
           STAMP=$(date +%Y-%m-%d)
-          pg_dump "$DB_URL" --no-owner --no-acl --clean --if-exists \
+          /usr/lib/postgresql/17/bin/pg_dump "$DB_URL" --no-owner --no-acl --clean --if-exists \
             > "backups/eventscore-$STAMP.sql"
           gzip -f "backups/eventscore-$STAMP.sql"
           ls -lh backups/
