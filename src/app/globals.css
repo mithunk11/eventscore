@@ -1007,3 +1007,43 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
   font-size: 20px; cursor: pointer;
 }
 .catdrop:hover { color: var(--rose); border-color: var(--rose) }
+
+/* ---------- Working state ---------- */
+
+.btn-working { display: inline-flex; align-items: center; gap: 10px }
+
+.spinner {
+  width: 16px; height: 16px; flex: 0 0 auto;
+  border: 2px solid rgba(255, 255, 255, .35);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg) } }
+
+.app-dark .spinner {
+  border-color: rgba(34, 17, 0, .3);
+  border-top-color: #221100;
+}
+
+/* A thin bar across the top of the dock while something is in flight */
+.dock { position: fixed }
+.dock.working::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: sweep 1.1s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0%   { background-position: -50% 0 }
+  100% { background-position: 150% 0 }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s }
+  .dock.working::before { animation: none; background-position: 0 0 }
+}

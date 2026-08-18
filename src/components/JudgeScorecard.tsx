@@ -32,6 +32,8 @@ export function JudgeScorecard({
   const [error, setError] = useState<string | null>(null)
   const [busy, startTask] = useTransition()
   const submittingRef = useRef(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [stage, setStage] = useState('')
   const router = useRouter()
 
   const soloJudge = panel.length <= 1
@@ -86,22 +88,40 @@ export function JudgeScorecard({
     startTask(async () => { await saveComment(person.entryId, body) })
   }
 
-  function submit() {
-    // A second tap while the first is in flight would queue another request
+  async function submit() {
     if (submittingRef.current) return
     submittingRef.current = true
+    setSubmitting(true)
     setError(null)
-    startTask(async () => {
-      try {
-        const res = await submitRound(roundId)
-        if (res?.error) { setError(res.error); return }
-        router.refresh()
-      } catch {
-        setError('That did not go through. Check your connection and try again.')
-      } finally {
+    setStage('Saving your marks')
+
+    try {
+      const res = await submitRound(roundId)
+
+      if (res?.error) {
+        setError(res.error)
+        setSubmitting(false)
         submittingRef.current = false
+        setStage('')
+        return
       }
-    })
+
+      setStage('Working out who goes through')
+      router.refresh()
+
+      // The refresh re-renders this component from the server. If it has not
+      // happened within a few seconds, stop pretending and let them retry.
+      setTimeout(() => {
+        submittingRef.current = false
+        setSubmitting(false)
+        setStage('')
+      }, 4000)
+    } catch {
+      setError('That did not go through. Check your connection and try again.')
+      setSubmitting(false)
+      submittingRef.current = false
+      setStage('')
+    }
   }
 
   // ---------------- Review ----------------
@@ -156,11 +176,16 @@ export function JudgeScorecard({
           {error && <p className="alert" style={{ marginTop: 18 }}>{error}</p>}
         </div>
 
-        <div className="dock">
+        <div className={submitting ? "dock working" : "dock"}>
           {!submitted ? (
             <>
-              <button className="btn btn-amber btn-full" onClick={submit} disabled={busy}>
-                {busy ? 'Submitting' : 'Submit round'}
+              <button className="btn btn-amber btn-full" onClick={submit} disabled={submitting}>
+                {submitting ? (
+                  <span className="btn-working">
+                    <span className="spinner" aria-hidden="true" />
+                    {stage || 'Submitting'}
+                  </span>
+                ) : 'Submit round'}
               </button>
               <button className="btn btn-quiet btn-full" onClick={() => setView('card')} style={{ marginTop: 6 }}>
                 Back to scoring
@@ -255,7 +280,7 @@ export function JudgeScorecard({
         {error && <p className="alert" style={{ marginTop: 18 }}>{error}</p>}
       </div>
 
-      <div className="dock">
+      <div className={submitting ? "dock working" : "dock"}>
         <div className="nav-row">
           <button className="btn btn-ghost" disabled={index === 0} onClick={() => setIndex(index - 1)}>Back</button>
           <span className="nav-count nums">

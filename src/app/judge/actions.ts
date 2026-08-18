@@ -172,6 +172,7 @@ export async function submitRound(roundId: string) {
     }
   }
 
-  revalidatePath('/judge/score')
+  // No revalidatePath here: the client calls router.refresh() itself.
+  // Doing both makes the transition never settle and the button sticks.
   return { ok: true }
 }
