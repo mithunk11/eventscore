@@ -1287,3 +1287,27 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
 .site { position: relative; isolation: isolate }
 .site > * { position: relative; z-index: 1 }
 .site-nav { padding-top: 20px }
+
+
+/* ============================================================
+   The glow is the first child of .site, so it must be taken out
+   of the flow entirely. Measured: .site starts at top 0 and the
+   empty space above the nav was this element's own height.
+   ============================================================ */
+
+.site-glow {
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 130vw !important;
+  max-width: 1500px !important;
+  height: 720px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.site { min-height: 100dvh }
+.site-nav { padding-top: 20px }
