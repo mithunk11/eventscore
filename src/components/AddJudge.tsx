@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { resizeImage } from '@/lib/resize'
 import { Sheet } from '@/components/Sheet'
+import { Spinner } from '@/components/Loading'
 import { PhotoPicker } from '@/components/PhotoPicker'
 
 function makePin() {
@@ -74,7 +75,7 @@ export function AddJudge({ eventId, nextPosition }: { eventId: string; nextPosit
             </div>
             {error && <p className="alert">{error}</p>}
             <button className="btn btn-amber btn-full" type="submit" disabled={saving} style={{ marginTop: 6 }}>
-              {saving ? 'Saving' : 'Save judge'}
+              {saving ? <Spinner label="Saving" /> : 'Save judge'}
             </button>
             <button className="btn btn-quiet btn-full" type="button" onClick={() => setOpen(false)} style={{ marginTop: 6 }}>Cancel</button>
           </form>

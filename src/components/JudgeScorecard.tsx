@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { SaveState } from '@/components/Loading'
 import { saveMarks, saveComment, submitRound } from '@/app/judge/actions'
 
 type Category = { id: string; name: string; max_score: number }
@@ -43,6 +44,7 @@ export function JudgeScorecard({
   const [marks, setMarks] = useState(initial)
   const [notes, setNotes] = useState(initialComments)
   const [error, setError] = useState<string | null>(null)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [busy, startTask] = useTransition()
   const submittingRef = useRef(false)
   const pendingRef = useRef<Map<string, { entryId: string; categoryId: string; value: number }>>(new Map())
@@ -94,9 +96,12 @@ export function JudgeScorecard({
     flushRef.current = setTimeout(() => {
       const rows = Array.from(pendingRef.current.values())
       pendingRef.current.clear()
+      setSaveState('saving')
       startTask(async () => {
         const res = await saveMarks(rows)
-        if (res?.error) setError(res.error)
+        if (res?.error) { setError(res.error); setSaveState('error'); return }
+        setSaveState('saved')
+        setTimeout(() => setSaveState('idle'), 1800)
       })
     }, 500)
   }
@@ -266,7 +271,10 @@ export function JudgeScorecard({
         </div>
 
         <div className="running">
-          <span className="label" style={{ margin: 0 }}>Your total</span>
+          <span className="label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+            Your total
+            <SaveState state={saveState} />
+          </span>
           <span className="running-value nums">{total}<small> / {maxTotal}</small></span>
         </div>
 

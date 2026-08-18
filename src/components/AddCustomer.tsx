@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createCustomer } from '@/app/backstage/actions'
 import { Sheet } from '@/components/Sheet'
+import { Spinner } from '@/components/Loading'
 
 export function AddCustomer() {
   const [open, setOpen] = useState(false)
@@ -85,7 +86,7 @@ export function AddCustomer() {
             </div>
             {state?.error && <p className="alert">{state.error}</p>}
             <button className="btn btn-amber btn-full" type="submit" disabled={pending}>
-              {pending ? 'Creating' : 'Create account'}
+              {pending ? <Spinner label="Creating" /> : 'Create account'}
             </button>
             <button className="btn btn-quiet btn-full" type="button" onClick={() => setOpen(false)} style={{ marginTop: 6 }}>
               Cancel

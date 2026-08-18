@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { signInWithToken } from '@/app/judge/actions'
+import { Spinner } from '@/components/Loading'
 
 export function JudgePinForm({ inviteToken }: { inviteToken: string }) {
   const [state, action, pending] = useActionState(signInWithToken, null)
@@ -17,7 +18,7 @@ export function JudgePinForm({ inviteToken }: { inviteToken: string }) {
       </div>
       {state?.error && <p className="alert">{state.error}</p>}
       <button className="btn btn-amber btn-full" type="submit" disabled={pending}>
-        {pending ? 'Checking' : 'Open my scorecard'}
+        {pending ? <Spinner label="Checking" /> : 'Open my scorecard'}
       </button>
     </form>
   )

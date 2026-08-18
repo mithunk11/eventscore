@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Brand } from '@/components/Brand'
+import { Spinner } from '@/components/Loading'
 
 export default function LoginPage() {
   const [step, setStep] = useState<'password' | 'code'>('password')
@@ -81,7 +82,7 @@ export default function LoginPage() {
               </div>
               {error && <p className="alert">{error}</p>}
               <button className="btn btn-amber btn-full" type="submit" disabled={loading} style={{ marginTop: 8 }}>
-                {loading ? 'Signing in' : 'Sign in'}
+                {loading ? <Spinner label="Signing in" /> : 'Sign in'}
               </button>
             </form>
 
@@ -107,7 +108,7 @@ export default function LoginPage() {
               </div>
               {error && <p className="alert">{error}</p>}
               <button className="btn btn-amber btn-full" type="submit" disabled={loading || code.length < 6}>
-                {loading ? 'Checking' : 'Continue'}
+                {loading ? <Spinner label="Checking" /> : 'Continue'}
               </button>
               <button className="btn btn-quiet btn-full" type="button" style={{ marginTop: 6 }}
                 onClick={() => { setStep('password'); setCode(''); setError(null) }}>

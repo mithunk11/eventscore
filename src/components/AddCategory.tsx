@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Sheet } from '@/components/Sheet'
+import { Spinner } from '@/components/Loading'
 
 export function AddCategory({ roundId, nextPosition }: { roundId: string; nextPosition: number }) {
   const [open, setOpen] = useState(false)
@@ -45,7 +46,7 @@ export function AddCategory({ roundId, nextPosition }: { roundId: string; nextPo
             </div>
             {error && <p className="alert">{error}</p>}
             <button className="btn btn-amber btn-full" type="submit" disabled={saving} style={{ marginTop: 6 }}>
-              {saving ? 'Saving' : 'Save category'}
+              {saving ? <Spinner label="Saving" /> : 'Save category'}
             </button>
             <button className="btn btn-quiet btn-full" type="button" onClick={() => setOpen(false)} style={{ marginTop: 6 }}>Cancel</button>
           </form>

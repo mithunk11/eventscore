@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Spinner } from '@/components/Loading'
 
 export default function NewEventPage() {
   const [name, setName] = useState('')
@@ -55,7 +56,7 @@ export default function NewEventPage() {
           </div>
           {error && <p className="alert">{error}</p>}
           <button className="btn btn-amber btn-full" type="submit" disabled={saving} style={{ marginTop: 8 }}>
-            {saving ? 'Creating' : 'Create event'}
+            {saving ? <Spinner label="Creating" /> : 'Create event'}
           </button>
         </form>
       </div>

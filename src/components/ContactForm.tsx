@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { sendEnquiry } from '@/app/contact-action'
+import { Spinner } from '@/components/Loading'
 
 export function ContactForm() {
   const [state, action, pending] = useActionState(sendEnquiry, null)
@@ -47,7 +48,7 @@ export function ContactForm() {
       {state?.error && <p className="alert">{state.error}</p>}
 
       <button className="btn btn-amber" type="submit" disabled={pending} style={{ minWidth: 180 }}>
-        {pending ? 'Sending' : 'Send enquiry'}
+        {pending ? <Spinner label="Sending" /> : 'Send enquiry'}
       </button>
     </form>
   )

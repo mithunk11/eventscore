@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Sheet } from '@/components/Sheet'
+import { Spinner } from '@/components/Loading'
 
 export function AddRound({ eventId, nextPosition }: { eventId: string; nextPosition: number }) {
   const [open, setOpen] = useState(false)
@@ -111,7 +112,7 @@ export function AddRound({ eventId, nextPosition }: { eventId: string; nextPosit
 
             {error && <p className="alert">{error}</p>}
             <button className="btn btn-amber btn-full" type="submit" disabled={saving} style={{ marginTop: 6 }}>
-              {saving ? 'Saving' : 'Save round'}
+              {saving ? <Spinner label="Saving" /> : 'Save round'}
             </button>
             <button className="btn btn-quiet btn-full" type="button" onClick={() => setOpen(false)} style={{ marginTop: 6 }}>Cancel</button>
           </form>
