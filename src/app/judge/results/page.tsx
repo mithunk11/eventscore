@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getJudgeSession } from '@/lib/judge-session'
 import { roundStandings } from '@/lib/scoring'
 import { signedUrls } from '@/lib/media'
+import { Podium } from '@/components/Podium'
 import { signOutJudge } from '../actions'
 
 export default async function JudgeResultsPage() {
@@ -50,22 +51,18 @@ export default async function JudgeResultsPage() {
           </div>
         ) : (
           <>
-            <div className="podium">
-              {order.map((pos) => {
-                const w = winners[pos]
-                if (!w) return null
-                return (
-                  <div key={w.entryId} className={'plinth plinth-' + (pos + 1)}>
-                    {w.photo && photos[w.photo]
-                      ? <img className="plinth-photo" src={photos[w.photo]} alt="" />
-                      : <div className="plinth-photo plinth-blank">{w.name.slice(0, 1).toUpperCase()}</div>}
-                    <span className="place nums">{String(pos + 1)}</span>
-                    <span className="plinth-name">{w.name}</span>
-                    {event.show_scores && <span className="plinth-score nums">{Math.round(w.rawMarks * 10) / 10}</span>}
-                  </div>
-                )
-              })}
-            </div>
+            <Podium
+              showMarks={event.show_scores}
+              winners={winners.map((w) => ({
+                key: w.entryId,
+                name: w.name,
+                bib: w.bib,
+                photoUrl: w.photo ? photos[w.photo] ?? null : null,
+                marks: w.rawMarks,
+                maxMarks: w.maxMarks,
+                tied: winners.filter((x) => Math.abs(x.score - w.score) < 0.001).length > 1,
+              }))}
+            />
 
             <p className="eyebrow" style={{ marginTop: 34 }}>Everyone, in order</p>
             <ul className="list">

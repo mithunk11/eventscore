@@ -284,17 +284,6 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .legal-nav a { font-size: 13px; color: var(--muted); text-decoration: none }
 .legal-nav a:hover { color: var(--amber) }
 
-.podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: end; margin-top: 10px }
-.plinth-1 { padding-top: 30px; background: linear-gradient(160deg, var(--amber-soft), #FFE2B0) }
-.plinth-2 { padding-top: 22px; background: var(--violet-soft) }
-.plinth-3 { background: var(--rose-soft) }
-.plinth-photo { width: 60px; height: 60px; border-radius: 18px; object-fit: cover }
-.plinth-blank { display: grid; place-items: center; background: var(--card); font-family: var(--font-display), Georgia, serif; font-size: 22px; color: var(--amber) }
-.place { font-family: var(--font-display), Georgia, serif; font-size: 26px; color: var(--amber) }
-.plinth-2 .place { color: var(--violet) }
-.plinth-3 .place { color: var(--rose) }
-.plinth-name { font-size: 12px; line-height: 1.25; font-weight: 600 }
-.plinth-score { font-size: 11px; color: var(--muted) }
 
 :focus-visible { outline: 3px solid var(--amber-edge); outline-offset: 2px }
 
@@ -323,11 +312,7 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 .app-dark .grab { background: rgba(242,236,255,.25) }
 .app-dark .greet-blank { background: var(--lift); color: #6B5F85 }
 .app-dark .app-dark .mark small { color: #A99CC4 }
-.app-dark .app-dark .app-dark .plinth-1 { background: rgba(255,181,71,.14) }
-.app-dark .plinth-2 { background: rgba(155,110,224,.14) }
-.app-dark .plinth-3 { background: rgba(255,61,139,.12) }
-.app-dark .place, .app-dark .plinth-2 .place, .app-dark .plinth-3 .place { color: #FFB547 }
-
+.app-dark .app-dark .app-dark .app-dark .app-dark .app-dark .place, .app-dark 
 .score-head { display: flex; gap: 16px; align-items: center; margin: 6px 0 18px }
 .score-photo { width: 86px; height: 86px; border-radius: 22px; object-fit: cover; flex: 0 0 auto }
 .score-photo-blank { display: grid; place-items: center; background: var(--lift); font-family: var(--font-display), Georgia, serif; font-size: 28px; color: #FFB547 }
@@ -818,48 +803,11 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 
 /* ---------- Rankings: room to breathe ---------- */
 
-.plinth {
-  gap: 10px;
-  padding: 20px 10px 18px;
-}
-.plinth-1 { padding-top: 34px }
-.plinth-2 { padding-top: 26px }
 
-.place {
-  display: grid; place-items: center;
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  background: var(--amber); color: #fff;
-  font-size: 19px; line-height: 1;
-  box-shadow: 0 4px 12px -4px rgba(154, 86, 0, .6);
-}
-.plinth-2 .place { background: var(--violet); box-shadow: 0 4px 12px -4px rgba(82, 45, 140, .6) }
-.plinth-3 .place { background: var(--rose); box-shadow: 0 4px 12px -4px rgba(168, 21, 81, .6) }
 
-.plinth-name {
-  display: block;
-  margin-top: 2px;
-  font-size: 13px; line-height: 1.35; font-weight: 600;
-  color: var(--ink);
-}
 
-.plinth-score {
-  display: block;
-  margin-top: 4px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .75);
-  font-family: var(--font-display), Georgia, serif;
-  font-size: 15px;
-  color: var(--ink);
-}
 
-.app-dark .plinth-name { color: var(--chalk) }
-.app-dark .plinth-score { background: rgba(0, 0, 0, .3); color: #FFC46B }
-.app-dark .place { color: #1A1207; background: #FFB547 }
-.app-dark .plinth-2 .place { background: #9B6EE0; color: #fff }
-.app-dark .plinth-3 .place { background: #EE5B93; color: #fff }
-
+.app-dark .app-dark .app-dark .app-dark .app-dark 
 /* Stage mode gets the same separation */
 .bigplinth { gap: 14px }
 .bigplace {
@@ -1109,40 +1057,108 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
 
 /* ---------- Rankings: place number always shows ---------- */
 
-.plinth { position: relative; padding-top: 30px }
-.plinth-1 { padding-top: 38px }
 
-.place {
-  position: absolute;
-  top: -16px; left: 50%;
-  transform: translateX(-50%);
-  display: grid; place-items: center;
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--amber);
-  border: 3px solid var(--paper);
-  color: #FFFFFF;
-  font-family: var(--font-display), Georgia, serif;
-  font-size: 19px; line-height: 1;
-}
-.plinth-2 .place { background: var(--violet) }
-.plinth-3 .place { background: var(--rose) }
 
-.plinth-photo { margin-top: 4px }
-.plinth-name { margin-top: 6px; font-size: 14px; font-weight: 600 }
-.plinth-score {
-  margin-top: 6px; padding: 5px 14px;
-  border-radius: 999px; background: #FFFFFF;
-  font-family: var(--font-display), Georgia, serif;
-  font-size: 16px; color: var(--ink);
-}
 
-.app-dark .place { border-color: var(--riser) }
-.app-dark .plinth-score { background: rgba(0,0,0,.35); color: #FFD79A }
-
+.app-dark .app-dark 
 .bigplace {
   position: absolute; top: -22px; left: 50%;
   transform: translateX(-50%);
   border: 4px solid var(--house);
 }
 .bigplinth { position: relative; padding-top: clamp(34px, 5vw, 60px) }
+
+/* ============================================================
+   PODIUM — first tallest in the middle, second left, third right
+   ============================================================ */
+
+.pod-stage {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 10px;
+  margin: 26px 0 8px;
+}
+.pod-of-2 { grid-template-columns: repeat(2, 1fr); max-width: 460px }
+.pod-of-1 { grid-template-columns: 1fr; max-width: 260px; margin-left: auto; margin-right: auto }
+
+.pod-col { display: flex; flex-direction: column; align-items: center }
+
+.pod-person {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding-bottom: 12px; text-align: center; width: 100%;
+}
+
+.pod-photo {
+  width: 64px; height: 64px; border-radius: 18px; object-fit: cover;
+  background: var(--card);
+  box-shadow: 0 6px 18px -8px rgba(36,26,56,.4);
+}
+.pod-photo-blank {
+  display: grid; place-items: center;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 26px; color: var(--amber);
+}
+
+.pod-name {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 15px; line-height: 1.25; color: var(--ink);
+  word-break: break-word;
+}
+.pod-bib { font-size: 11px; color: var(--muted) }
+
+.pod-marks {
+  padding: 4px 12px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 15px; color: var(--ink);
+}
+.pod-marks small { font-size: 11px; color: var(--muted) }
+
+.pod-tied {
+  padding: 3px 9px; border-radius: 999px;
+  background: var(--rose); color: #fff;
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+}
+
+/* The blocks themselves. Height is what makes it read as a podium. */
+.pod-block {
+  display: grid; place-items: center;
+  width: 100%; border-radius: 14px 14px 0 0;
+}
+.pod-place {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 30px; line-height: 1; color: #FFFFFF;
+}
+
+.pod-place-1 .pod-block { height: 108px; background: linear-gradient(180deg, #E8A33A, #B06A05) }
+.pod-place-2 .pod-block { height: 78px;  background: linear-gradient(180deg, #8E6BC4, #5A3492) }
+.pod-place-3 .pod-block { height: 58px;  background: linear-gradient(180deg, #DE6193, #A21A52) }
+
+.pod-place-1 .pod-photo { width: 76px; height: 76px }
+.pod-place-1 .pod-name { font-size: 17px }
+.pod-place-1 .pod-place { font-size: 36px }
+
+.app-dark .pod-name, .stagemode .pod-name { color: var(--chalk) }
+.app-dark .pod-marks, .stagemode .pod-marks { background: rgba(0,0,0,.3); border-color: rgba(242,236,255,.2); color: #FFD79A }
+.app-dark .pod-marks small, .stagemode .pod-marks small { color: #C3B8D9 }
+.app-dark .pod-bib, .stagemode .pod-bib { color: #C3B8D9 }
+.app-dark .pod-photo, .stagemode .pod-photo { background: var(--lift) }
+
+@media (max-width: 400px) {
+  .pod-stage { gap: 6px }
+  .pod-photo { width: 52px; height: 52px }
+  .pod-place-1 .pod-photo { width: 62px; height: 62px }
+  .pod-name { font-size: 13px }
+  .pod-place-1 .pod-name { font-size: 14px }
+  .pod-marks { padding: 3px 9px; font-size: 13px }
+}
+
+@media (min-width: 834px) {
+  .pod-stage { max-width: 640px; margin-left: auto; margin-right: auto; gap: 16px }
+  .pod-place-1 .pod-block { height: 140px }
+  .pod-place-2 .pod-block { height: 102px }
+  .pod-place-3 .pod-block { height: 76px }
+  .pod-photo { width: 84px; height: 84px }
+  .pod-place-1 .pod-photo { width: 100px; height: 100px }
+}

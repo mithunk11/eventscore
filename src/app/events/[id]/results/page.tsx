@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { fullResults } from '@/lib/results'
 import { signedUrls } from '@/lib/media'
+import { Podium } from '@/components/Podium'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,24 +46,17 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
           </div>
         ) : (
           <>
-            <div className="podium">
-              {order.map((pos) => {
-                const w = winners[pos]
-                if (!w) return null
-                return (
-                  <div key={w.contestantId} className={'plinth plinth-' + (pos + 1)}>
-                    {w.photo && photos[w.photo]
-                      ? <img className="plinth-photo" src={photos[w.photo]} alt="" />
-                      : <div className="plinth-photo plinth-blank">{w.name.slice(0, 1).toUpperCase()}</div>}
-                    <span className="place nums">{String(pos + 1)}</span>
-                    <span className="plinth-name">{w.name}</span>
-                    {event.show_scores && (
-                      <span className="plinth-score nums">{Math.round(w.grandTotal)}</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+            <Podium
+              showMarks={event.show_scores}
+              winners={winners.map((w) => ({
+                key: w.contestantId,
+                name: w.name,
+                bib: w.bib,
+                photoUrl: w.photo ? photos[w.photo] ?? null : null,
+                marks: w.grandTotal,
+                maxMarks: 0,
+              }))}
+            />
 
             <div className="rank-head">
               <div>
