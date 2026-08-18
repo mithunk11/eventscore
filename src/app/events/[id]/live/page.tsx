@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { roundStandings } from '@/lib/scoring'
 import { signedUrls } from '@/lib/media'
 import { RoundOverride } from '@/components/RoundOverride'
+import { BallotWatch } from '@/components/BallotWatch'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +35,25 @@ export default async function LivePage({ params }: { params: Promise<{ id: strin
   const submittedIds = new Set((allSubs ?? []).filter((s) => s.round_id === current?.id).map((s) => s.judge_id))
   const missing = (judges ?? []).filter((j) => !submittedIds.has(j.id)).map((j) => j.name)
 
+  const { data: openBallot } = current
+    ? await supabase.from('tiebreaks').select('*')
+        .eq('round_id', current.id).eq('status', 'open').maybeSingle()
+    : { data: null }
+
+  let ballotNames: string[] = []
+  let ballotWaiting: string[] = []
+  if (openBallot) {
+    const { data: tiedEntries } = await supabase
+      .from('entries').select('id, contestants(name)').in('id', openBallot.tied_entry_ids ?? [])
+    ballotNames = (tiedEntries ?? []).map(
+      (e) => (e.contestants as unknown as { name: string })?.name ?? '?'
+    )
+    const { data: cast } = await supabase
+      .from('judge_votes').select('judge_id').eq('tiebreak_id', openBallot.id)
+    const voted = new Set((cast ?? []).map((v) => v.judge_id))
+    ballotWaiting = (judges ?? []).filter((j) => !voted.has(j.id)).map((j) => j.name)
+  }
+
   const standings = current ? await roundStandings(supabase, current.id) : []
   const photos = await signedUrls(supabase, standings.map((s) => s.photo))
   const advanceLine = current?.advance_count ?? null
@@ -61,6 +81,11 @@ export default async function LivePage({ params }: { params: Promise<{ id: strin
             </span>
           ))}
         </div>
+
+        {openBallot && current && (
+          <BallotWatch eventId={id} ballotId={openBallot.id} place={openBallot.place ?? 1}
+            names={ballotNames} waitingOn={ballotWaiting} />
+        )}
 
         {current && (
           <RoundOverride eventId={id} roundId={current.id}

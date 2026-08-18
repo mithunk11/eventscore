@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getJudgeSession } from '@/lib/judge-session'
 import { roundStandings } from '@/lib/scoring'
+import { applyBallots } from '@/lib/tiebreak'
 import { signedUrls } from '@/lib/media'
 import { Podium } from '@/components/Podium'
 import { signOutJudge } from '../actions'
@@ -16,7 +17,8 @@ export default async function JudgeResultsPage() {
   const final = rounds?.find((r) => !r.advance_count) ?? rounds?.[0]
   if (!final) redirect('/judge/score')
 
-  const standings = await roundStandings(db, final.id)
+  const raw = await roundStandings(db, final.id)
+  const { standings, notes: tieNotes } = await applyBallots(db, final.id, raw)
   const photos = await signedUrls(db, standings.map((s) => s.photo))
 
   const { count: judgeTotal } = await db
@@ -63,6 +65,14 @@ export default async function JudgeResultsPage() {
                 tied: winners.filter((x) => Math.abs(x.score - w.score) < 0.001).length > 1,
               }))}
             />
+
+            {tieNotes.length > 0 && (
+              <div className="tienote">
+                {tieNotes.map((t) => (
+                  <p key={t.place}>Place {t.place}: {t.note}</p>
+                ))}
+              </div>
+            )}
 
             <p className="eyebrow" style={{ marginTop: 34 }}>Everyone, in order</p>
             <ul className="list">

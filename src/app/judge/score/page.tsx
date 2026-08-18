@@ -17,6 +17,12 @@ export default async function JudgeScorePage() {
   const { data: mySubs } = await db.from('submissions').select('round_id').eq('judge_id', judge.id)
   const mine = new Set((mySubs ?? []).map((s) => s.round_id))
 
+  // An open ballot takes priority over everything else
+  const { data: openBallot } = await db
+    .from('tiebreaks').select('id')
+    .in('round_id', rounds.map((r) => r.id)).eq('status', 'open').limit(1).maybeSingle()
+  if (openBallot) redirect('/judge/ballot')
+
   const current = rounds.find((r) => !mine.has(r.id))
   if (!current) redirect('/judge/results')
 

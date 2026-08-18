@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getJudgeSession, JUDGE_COOKIE } from '@/lib/judge-session'
 import { ensureRoster } from '@/lib/scoring'
+import { ensureBallot } from '@/lib/tiebreak'
 import { tooManyAttempts, recordAttempt, LOCKOUT_MESSAGE } from '@/lib/ratelimit'
 
 async function startSession(judgeId: string, eventId: string) {
@@ -214,6 +215,12 @@ export async function submitRound(roundId: string) {
 
     // Synchronised events only open the next round once every judge is in
     const everyoneIn = (subCount ?? 0) >= judgeCount
+
+    if (everyoneIn) {
+      // A tie at a place that matters must be settled before anyone moves on
+      await ensureBallot(db, roundId, event.winners_count ?? 3)
+    }
+
     if (event.progression === 'independent' || everyoneIn) {
       const { data: next } = await db
         .from('rounds').select('id')
@@ -224,5 +231,30 @@ export async function submitRound(roundId: string) {
 
   // No revalidatePath here: the client calls router.refresh() itself.
   // Doing both makes the transition never settle and the button sticks.
+  return { ok: true }
+}
+
+export async function castTieVote(ballotId: string, chosenEntryId: string) {
+  const session = await getJudgeSession()
+  if (!session) return { error: 'Your session expired.' }
+  const { judge, db } = session
+
+  const { data: ballot } = await db
+    .from('tiebreaks').select('id, status, tied_entry_ids').eq('id', ballotId).maybeSingle()
+  if (!ballot) return { error: 'That vote is no longer open.' }
+  if (ballot.status !== 'open') return { error: 'That vote has already been settled.' }
+  if (!(ballot.tied_entry_ids ?? []).includes(chosenEntryId)) {
+    return { error: 'That contestant is not part of this vote.' }
+  }
+
+  const { error } = await db.from('judge_votes').upsert(
+    { tiebreak_id: ballotId, judge_id: judge.id, chosen_entry_id: chosenEntryId },
+    { onConflict: 'tiebreak_id,judge_id' }
+  )
+  if (error) return { error: error.message }
+
+  const { resolveBallot } = await import('@/lib/tiebreak')
+  await resolveBallot(db, ballotId)
+
   return { ok: true }
 }

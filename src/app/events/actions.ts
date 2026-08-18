@@ -133,3 +133,39 @@ export async function deleteEvent(eventId: string, typedName: string) {
 
   redirect('/dashboard')
 }
+
+/**
+ * Settles an open ballot by entry number instead of waiting for judges.
+ * For when someone has left the venue. Recorded like any other outcome.
+ */
+export async function skipBallot(eventId: string, ballotId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in.' }
+
+  const { data: ballot } = await supabase
+    .from('tiebreaks').select('id, round_id, tied_entry_ids').eq('id', ballotId).maybeSingle()
+  if (!ballot) return { error: 'That vote no longer exists.' }
+
+  const { data: entries } = await supabase
+    .from('entries').select('id, contestants(bib_number)')
+    .in('id', ballot.tied_entry_ids ?? [])
+
+  const sorted = (entries ?? []).sort((a, b) => {
+    const ab = Number((a.contestants as unknown as { bib_number: string | null })?.bib_number ?? 0)
+    const bb = Number((b.contestants as unknown as { bib_number: string | null })?.bib_number ?? 0)
+    return ab - bb
+  })
+
+  const { error } = await supabase.from('tiebreaks').update({
+    status: 'resolved',
+    method: 'manual',
+    winner_entry_id: sorted[0]?.id ?? null,
+    note: 'Settled by the organiser, ordered by entry number',
+    resolved_at: new Date().toISOString(),
+  }).eq('id', ballotId)
+
+  if (error) return { error: error.message }
+  revalidatePath('/events/' + eventId + '/live')
+  return { ok: true }
+}
