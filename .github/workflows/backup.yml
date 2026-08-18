@@ -29,14 +29,23 @@ jobs:
           fi
           mkdir -p backups
           STAMP=$(date +%Y-%m-%d)
-          supabase db dump --db-url "$DB_URL" -f "backups/eventscore-$STAMP.sql"
-          gzip -f "backups/eventscore-$STAMP.sql"
+          # Structure and rows are separate dumps. Schema alone restores
+          # empty tables, which looks like a working backup and is not one.
+          supabase db dump --db-url "$DB_URL" -f "backups/schema-$STAMP.sql"
+          supabase db dump --db-url "$DB_URL" --data-only -f "backups/data-$STAMP.sql"
+
+          echo "--- row statements captured ---"
+          grep -c "INSERT INTO\|COPY public" "backups/data-$STAMP.sql" || true
+
+          gzip -f "backups/schema-$STAMP.sql"
+          gzip -f "backups/data-$STAMP.sql"
           ls -lh backups/
 
       - name: Keep the last 30 days
         run: |
           cd backups
-          ls -1t *.sql.gz 2>/dev/null | tail -n +31 | xargs -r rm --
+          ls -1t schema-*.sql.gz 2>/dev/null | tail -n +31 | xargs -r rm --
+          ls -1t data-*.sql.gz 2>/dev/null | tail -n +31 | xargs -r rm --
           ls -1 *.sql.gz | wc -l
 
       - name: Commit it
