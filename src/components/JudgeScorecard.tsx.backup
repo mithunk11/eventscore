@@ -25,21 +25,8 @@ export function JudgeScorecard({
   panel: JudgeState[]
   hasNextRound: boolean
 }) {
-  // Only open on review if this round has actually been marked. Straight after
-  // submitting a round, `submitted` can still be true while the next round loads.
-  const anyMarks = Object.values(initial).some((cats) =>
-    Object.values(cats ?? {}).some((v) => typeof v === 'number')
-  )
-  const [view, setView] = useState<'card' | 'review'>(submitted && anyMarks ? 'review' : 'card')
+  const [view, setView] = useState<'card' | 'review'>(submitted ? 'review' : 'card')
   const [index, setIndex] = useState(0)
-
-  // A new round arriving resets the view and the position
-  useEffect(() => {
-    setIndex(0)
-    setMarks(initial)
-    setView(submitted && anyMarks ? 'review' : 'card')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundId])
   const [marks, setMarks] = useState(initial)
   const [notes, setNotes] = useState(initialComments)
   const [error, setError] = useState<string | null>(null)
@@ -189,7 +176,7 @@ export function JudgeScorecard({
           {error && <p className="alert" style={{ marginTop: 18 }}>{error}</p>}
         </div>
 
-        <div className={submitting ? 'dock dock-review working' : 'dock dock-review'}>
+        <div className={submitting ? "dock working" : "dock"}>
           {!submitted ? (
             <>
               <button className="btn btn-amber btn-full" onClick={submit} disabled={submitting}>

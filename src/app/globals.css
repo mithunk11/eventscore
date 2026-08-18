@@ -1047,3 +1047,20 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
   .spinner { animation-duration: 2s }
   .dock.working::before { animation: none; background-position: 0 0 }
 }
+
+/* ---------- Review dock: one column, centred ---------- */
+
+.dock-review {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.dock-review .btn-full { max-width: 420px; margin: 0 auto; width: 100% }
+.dock-review .warnline { max-width: 420px; margin: 2px auto 0 }
+
+/* On a wide window the dock was stretching its contents oddly */
+@media (min-width: 834px) {
+  .dock-review .btn-full { max-width: 360px }
+  .dock-review .warnline { max-width: 360px }
+}
