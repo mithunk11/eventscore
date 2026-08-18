@@ -1064,3 +1064,25 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
   .dock-review .btn-full { max-width: 360px }
   .dock-review .warnline { max-width: 360px }
 }
+
+/* ---------- Scorecard dock: nothing overlapping ---------- */
+
+.dock { display: flex; flex-direction: column; gap: 10px }
+.dock .nav-row { width: 100%; margin: 0 }
+.dock .scrub { margin: 0 }
+.dock .btn-full { margin: 0 }
+
+.nav-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 108px;
+  align-items: center;
+  gap: 10px;
+}
+.nav-row .btn { min-height: 46px; padding: 0 16px; font-size: 14px; width: 100% }
+.nav-count { text-align: center; font-size: 13px }
+
+.nav-go { font-weight: 700 }
+
+@media (min-width: 834px) {
+  .dock .nav-row { max-width: 480px; margin: 0 auto }
+}

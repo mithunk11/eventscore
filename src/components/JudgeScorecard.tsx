@@ -300,15 +300,11 @@ export function JudgeScorecard({
             {index === people.length - 1 ? 'Last of ' + people.length : (index + 1) + ' of ' + people.length}
           </span>
           {index === people.length - 1 ? (
-            <button className="btn btn-ghost" onClick={() => setView('review')}>Review</button>
+            <button className="btn btn-amber nav-go" onClick={() => setView('review')}>Review</button>
           ) : (
-            <button className="btn btn-ghost" onClick={() => setIndex(index + 1)}>Next</button>
+            <button className="btn btn-amber nav-go" onClick={() => setIndex(index + 1)}>Next</button>
           )}
         </div>
-        <button className="btn btn-amber btn-full" disabled={busy}
-          onClick={() => setView('review')} style={{ marginTop: 10 }}>
-          Review my marks
-        </button>
       </div>
     </>
   )
