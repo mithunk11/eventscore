@@ -11,7 +11,7 @@ export default function RecoveryPage() {
     <div className="app">
       <div className="spot" />
       <div className="screen" style={{ paddingTop: 70 }}>
-        <Brand size={56} stacked badge />
+        <Brand size={64} stacked badge />
 
         <p className="eyebrow" style={{ marginTop: 40 }}>Lost your phone</p>
         <h1 className="display d-xl">Use a recovery code</h1>

@@ -1427,3 +1427,13 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
 @media (prefers-reduced-motion: reduce) {
   .pod { animation: none; transform: none; opacity: 1 }
 }
+
+/* ---------- Entry screens: judge and organiser sized alike ---------- */
+
+.greet-lg { margin-top: 40px }
+.greet-lg .greet-photo { width: 116px; height: 116px; border-radius: 32px }
+.greet-lg .display { font-size: 36px }
+.greet-lg .sub { font-size: 15px }
+
+/* Both entry screens start at the same distance from the top */
+.app > .screen:first-child { padding-top: 70px }

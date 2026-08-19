@@ -11,7 +11,7 @@ export default function JudgeSignInPage() {
     <div className="app">
       <div className="spot" />
       <div className="screen" style={{ paddingTop: 80 }}>
-        <Brand size={30} />
+        <Brand size={64} stacked badge />
         <p className="eyebrow" style={{ marginTop: 44 }}>Judges</p>
         <h1 className="display d-xl">Take your seat</h1>
         <p className="sub" style={{ marginBottom: 32 }}>

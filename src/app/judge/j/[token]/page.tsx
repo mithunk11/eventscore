@@ -21,8 +21,8 @@ export default async function JudgeInvitePage({ params }: { params: Promise<{ to
     <div className="app">
       <div className="spot" />
       <div className="screen" style={{ paddingTop: 70 }}>
-        <Brand size={32} />
-        <div className="greet">
+        <Brand size={64} stacked badge />
+        <div className="greet greet-lg">
           {photo
             ? <img className="greet-photo" src={photo} alt="" />
             : <div className="greet-photo greet-blank">
