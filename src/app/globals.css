@@ -481,7 +481,6 @@ textarea.input { min-height: 84px; resize: vertical; line-height: 1.5 }
 
 .podmark-badge {
   border-radius: 26%;
-  padding: 13%;
   background: linear-gradient(155deg, #40305F 0%, var(--ink) 70%);
   box-shadow:
     0 14px 32px -14px rgba(36, 26, 56, .75),
@@ -1404,7 +1403,6 @@ a.nav-btn { color: #FFFFFF !important; font-weight: 700 }
 
 .podmark-badge {
   box-sizing: border-box;
-  padding: 13%;
   border-radius: 26%;
   background: linear-gradient(155deg, #40305F 0%, var(--ink) 70%);
   box-shadow:
