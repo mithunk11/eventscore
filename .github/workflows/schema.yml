@@ -1,0 +1,38 @@
+name: Export schema
+
+on:
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Dump the schema
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p db
+          supabase db dump --db-url "$DB_URL" -f db/01-schema.sql
+          wc -l db/01-schema.sql
+          ls -lh db/
+
+      - name: Commit it
+        run: |
+          git config user.name "EventScore schema"
+          git config user.email "actions@github.com"
+          git add db/
+          if git diff --staged --quiet; then
+            echo "No change"
+          else
+            git commit -m "Schema export $(date +%Y-%m-%d)"
+            git push
+          fi
