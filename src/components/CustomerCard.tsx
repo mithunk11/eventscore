@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { setAccess, setLimits, softDelete, restore } from '@/app/backstage/actions'
 import { AccountAdmin } from '@/components/AccountAdmin'
+import { PurgeAccount } from '@/components/PurgeAccount'
 
 type Customer = {
   id: string
@@ -59,6 +60,11 @@ export function CustomerCard({ customer }: { customer: Customer }) {
           </p>
           <button className="btn btn-ghost" style={{ minHeight: 40, fontSize: 13 }} disabled={busy}
             onClick={() => run(() => restore(customer.id))}>Restore</button>
+        </div>
+
+        <div className="purge-row">
+          <PurgeAccount profileId={customer.id} email={customer.email}
+            eventCount={customer.eventCount} />
         </div>
       ) : (
         <>

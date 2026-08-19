@@ -225,3 +225,71 @@ export async function resetPassword(profileId: string) {
 
   return { ok: true, password }
 }
+
+/**
+ * Removes an account outright: the sign-in record, the profile, every event
+ * they created and all the photographs belonging to those events.
+ *
+ * Irreversible, and the only way to free an email address for reuse. Soft
+ * delete leaves the auth record in place, so creating the same email again
+ * fails until this has run.
+ */
+export async function purgeAccount(profileId: string, typedEmail: string) {
+  const supabase = await requireOwner()
+  if (!supabase) return { error: 'Not permitted.' }
+
+  const { data: me } = await supabase.auth.getUser()
+  if (me?.user?.id === profileId) {
+    return { error: 'You cannot purge your own account.' }
+  }
+
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  const db = createAdminClient()
+
+  const { data: profile } = await db
+    .from('profiles').select('id, email, role, status').eq('id', profileId).maybeSingle()
+  if (!profile) return { error: 'That account no longer exists.' }
+
+  if (typedEmail.trim().toLowerCase() !== (profile.email ?? '').toLowerCase()) {
+    return { error: 'The email did not match, so nothing was deleted.' }
+  }
+
+  if (profile.role === 'owner') {
+    const { count } = await db
+      .from('profiles').select('id', { count: 'exact', head: true })
+      .eq('role', 'owner').neq('status', 'deleted')
+    if ((count ?? 0) <= 1) return { error: 'This is the only owner. Promote someone else first.' }
+  }
+
+  // Photographs are not removed by any database cascade, so they go first.
+  const { data: events } = await db.from('events').select('id').eq('owner_id', profileId)
+  const { deleteEventMedia } = await import('@/lib/purge')
+
+  let photosRemoved = 0
+  for (const e of events ?? []) {
+    photosRemoved += await deleteEventMedia(db, profileId, e.id)
+  }
+
+  // Events cascade to rounds, categories, contestants, judges and scores.
+  await db.from('events').delete().eq('owner_id', profileId)
+  await db.from('acceptances').delete().eq('profile_id', profileId)
+  await db.from('recovery_codes').delete().eq('profile_id', profileId)
+  await db.from('profiles').delete().eq('id', profileId)
+
+  // Last, so a failure above leaves the account recoverable rather than orphaned.
+  const { error: authError } = await db.auth.admin.deleteUser(profileId)
+  if (authError) {
+    return { error: 'Data removed, but the sign-in record could not be deleted: ' + authError.message }
+  }
+
+  await db.from('audit_log').insert({
+    actor_id: me?.user?.id ?? null,
+    action: 'account.purged',
+    target_type: 'profile',
+    target_id: profileId,
+    detail: { email: profile.email, events: events?.length ?? 0, photos: photosRemoved },
+  })
+
+  revalidatePath('/backstage')
+  return { ok: true, email: profile.email }
+}

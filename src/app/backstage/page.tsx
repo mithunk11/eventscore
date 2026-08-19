@@ -69,7 +69,7 @@ export default async function BackstagePage({
         <span style={{ flex: 1 }} />
         <a className="btn btn-quiet" href="/backstage/enquiries">Enquiries</a>
         <a className="btn btn-quiet" href="/backstage/acceptances">Agreements</a>
-        <a className="btn btn-quiet" href="/dashboard">My events</a>
+        <a className="btn btn-quiet" href="/dashboard">Events</a>
       </header>
 
       <div className="screen">

@@ -2064,3 +2064,52 @@ from { transform: scaleY(.06); opacity: 0 }
 .greet-lg .display { font-size: 36px }
 .greet-lg .sub { font-size: 15px }
 .app > .screen:first-child { padding-top: 70px }
+
+/* ---------- Backstage header: four items on a narrow screen ---------- */
+
+.topbar {
+  flex-wrap: wrap;
+  row-gap: 4px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.topbar .btn-quiet {
+  padding: 0 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+@media (max-width: 430px) {
+  .topbar .lockup .wordmark { display: none }
+  .topbar .btn-quiet { font-size: 12px; padding: 0 5px }
+}
+
+/* ---------- Permanent deletion ---------- */
+
+.purge-row { margin-top: 10px }
+
+.acct-btn-danger {
+  border-color: rgba(168, 21, 81, .35);
+  color: var(--rose);
+}
+.acct-btn-danger:hover {
+  background: var(--rose);
+  border-color: var(--rose);
+  color: #fff;
+}
+
+.purge {
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--rose-soft);
+  border: 1px solid rgba(168, 21, 81, .3);
+}
+.purge-warn {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #7A0F3A;
+}
+.purge-warn:last-of-type { margin-bottom: 0 }
+.purge .label { color: #7A0F3A }
