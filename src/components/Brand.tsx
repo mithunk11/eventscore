@@ -13,8 +13,17 @@ export function Brand({
   badge?: boolean
 }) {
   const mark = (
-    <span className={'podmark' + (badge ? ' podmark-badge' : '')} style={{ width: size, height: size }}>
-      <svg viewBox="0 0 44 44" width="100%" height="100%" aria-hidden="true">
+    <span
+      className={'podmark' + (badge ? ' podmark-badge' : '')}
+      style={{ width: size, height: size, display: 'block', lineHeight: 0 }}
+    >
+      <svg
+        viewBox="0 0 44 44"
+        width={badge ? size * 0.74 : size}
+        height={badge ? size * 0.74 : size}
+        style={{ display: 'block', margin: badge ? size * 0.13 : 0 }}
+        aria-hidden="true"
+      >
         <defs>
           <linearGradient id="pg1" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#FF7DAE" /><stop offset="100%" stopColor="#D62B72" />
