@@ -2113,3 +2113,33 @@ from { transform: scaleY(.06); opacity: 0 }
 }
 .purge-warn:last-of-type { margin-bottom: 0 }
 .purge .label { color: #7A0F3A }
+
+/* ---------- Round outcome: through and not through ---------- */
+
+.outcome-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 24px 0 12px; padding: 12px 16px;
+  border-radius: 14px;
+}
+.outcome-through { background: var(--teal); }
+.outcome-out { background: var(--sunk); }
+
+.outcome-label {
+  font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: #fff;
+}
+.outcome-out .outcome-label { color: var(--muted) }
+
+.outcome-count {
+  min-width: 28px; height: 28px; padding: 0 9px;
+  display: grid; place-items: center; border-radius: 999px;
+  background: rgba(255,255,255,.22); color: #fff;
+  font-size: 13px; font-weight: 700;
+}
+.outcome-out .outcome-count { background: var(--line); color: var(--muted) }
+
+.outcome-dim .card { opacity: .72 }
+
+.app-dark .outcome-out { background: rgba(242,236,255,.10) }
+.app-dark .outcome-out .outcome-label { color: #C3B8D9 }
+.app-dark .outcome-out .outcome-count { background: rgba(242,236,255,.14); color: #C3B8D9 }

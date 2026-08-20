@@ -53,8 +53,8 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                 name: w.name,
                 bib: w.bib,
                 photoUrl: w.photo ? photos[w.photo] ?? null : null,
-                marks: w.grandTotal,
-                maxMarks: 0,
+                marks: w.total,
+                maxMarks: w.maxTotal,
               }))}
             />
 
@@ -93,10 +93,10 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
                       </td>
                       {columns.map((c) => (
                         <td key={c.id} className={r.perRound[c.id] == null ? 'out' : ''}>
-                          {r.perRound[c.id] == null ? '\u2013' : r.perRound[c.id]!.toFixed(1)}
+                          {r.perRound[c.id] == null ? '\u2013' : String(Math.round(r.perRound[c.id]! * 10) / 10)}
                         </td>
                       ))}
-                      <td className="grand">{Math.round(r.grandTotal)}</td>
+                      <td className="grand">{Math.round(r.total * 10) / 10}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -104,8 +104,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
             </div>
 
             <p className="sub" style={{ fontSize: 12, marginTop: 14 }}>
-              A dash means the contestant did not take part in that round. Each round is
-              scored out of 100 and kept separate, so one round never dilutes another.
+              A dash means the contestant did not take part in that round. Marks are added across every round a contestant took part in.
             </p>
           </>
         )}

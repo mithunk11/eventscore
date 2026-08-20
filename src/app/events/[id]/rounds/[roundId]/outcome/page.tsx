@@ -1,0 +1,54 @@
+import { redirect, notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { roundOutcome } from '@/lib/scoring'
+import { signedUrls } from '@/lib/media'
+import { OutcomeTables } from '@/components/OutcomeTables'
+
+export const dynamic = 'force-dynamic'
+
+export default async function OutcomePage({
+  params,
+}: {
+  params: Promise<{ id: string; roundId: string }>
+}) {
+  const { id, roundId } = await params
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: event } = await supabase.from('events').select('name').eq('id', id).single()
+  if (!event) notFound()
+
+  const outcome = await roundOutcome(supabase, roundId)
+  if (!outcome) notFound()
+
+  const photos = await signedUrls(supabase,
+    [...outcome.through, ...outcome.out].map((s) => s.photo))
+
+  return (
+    <div className="app">
+      <div className="spot" />
+      <header className="topbar">
+        <a className="back" href={'/events/' + id + '/rounds/' + roundId} aria-label="Back">&lsaquo;</a>
+        <span className="topbar-title">Round result</span>
+      </header>
+
+      <div className="screen">
+        <p className="eyebrow nums">
+          Round {String(outcome.round.position).padStart(2, '0')} &middot; {outcome.round.name}
+        </p>
+        <h1 className="display d-xl">
+          {outcome.isFinal ? 'Final placings' : 'Who went through'}
+        </h1>
+        <p className="sub" style={{ marginBottom: 24 }}>
+          {outcome.isFinal
+            ? 'This round decided the event.'
+            : `The top ${outcome.round.advance_count} advanced. Marks are out of ${outcome.through[0]?.maxMarks ?? 0}.`}
+        </p>
+
+        <OutcomeTables through={outcome.through} out={outcome.out} photos={photos} />
+      </div>
+    </div>
+  )
+}

@@ -40,6 +40,19 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
           {isFinal ? 'This round decides the winners.' : 'The top ' + round.advance_count + ' go through.'}
         </p>
 
+        <ul className="list" style={{ marginBottom: 26 }}>
+          <li>
+            <a className="step" href={'/events/' + id + '/rounds/' + roundId + '/outcome'}>
+              <span className="dot dot-done">&#9679;</span>
+              <span className="card-body">
+                <span className="card-title d-m">Round result</span>
+                <span className="card-meta">Who went through, who did not, with marks</span>
+              </span>
+              <span className="chev">&rsaquo;</span>
+            </a>
+          </li>
+        </ul>
+
         <p className="eyebrow">What gets marked</p>
 
         {!categories || categories.length === 0 ? (
