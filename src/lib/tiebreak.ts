@@ -21,7 +21,7 @@ function tiesThatMatter(standings: Standing[], cutoff: number) {
   while (i < standings.length) {
     const same = [standings[i]]
     let j = i + 1
-    while (j < standings.length && Math.abs(standings[j].score - standings[i].score) < 0.001) {
+    while (j < standings.length && Math.abs(standings[j].marks - standings[i].marks) < 0.001) {
       same.push(standings[j])
       j++
     }

@@ -60,7 +60,7 @@ export default async function ExportPage({ params }: { params: Promise<{ id: str
             <tbody>
               {podium.map((s, i) => (
                 <tr key={s.entryId}>
-                  <td>{i + 1}</td><td>{s.bib ?? ''}</td><td>{s.name}</td><td>{s.score.toFixed(1)}%</td>
+                  <td>{i + 1}</td><td>{s.bib ?? ''}</td><td>{s.name}</td><td>{Math.round(s.marks * 10) / 10}</td>
                 </tr>
               ))}
             </tbody>
@@ -80,7 +80,7 @@ export default async function ExportPage({ params }: { params: Promise<{ id: str
                 {standings.map((s, i) => (
                   <tr key={s.entryId} className={round.advance_count && i < round.advance_count ? 'through' : ''}>
                     <td>{i + 1}</td><td>{s.bib ?? ''}</td><td>{s.name}</td>
-                    <td>{s.judgesIn}</td><td>{s.score.toFixed(1)}%</td>
+                    <td>{s.judgesIn}</td><td>{Math.round(s.marks * 10) / 10}</td>
                   </tr>
                 ))}
               </tbody>

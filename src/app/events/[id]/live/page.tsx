@@ -122,7 +122,7 @@ export default async function LivePage({ params }: { params: Promise<{ id: strin
                     <span className="card-title">{s.name}</span>
                     <span className="card-meta nums">{s.judgesIn} judge{s.judgesIn === 1 ? '' : 's'} scored</span>
                   </span>
-                  <span className="mark nums">{s.score.toFixed(1)}<small>%</small></span>
+                  <span className="mark nums">{Math.round(s.marks * 10) / 10}<small>/{s.maxMarks}</small></span>
                 </div>
               </li>
             ))}

@@ -76,11 +76,11 @@ export async function roundStandings(db: SupabaseClient, roundId: string): Promi
       return categories.reduce((acc, c) => acc + (mine?.get(c.id) ?? 0), 0)
     })
 
-    const marks = perJudge.length
-      ? perJudge.reduce((a, b) => a + b, 0) / perJudge.length
-      : 0
+    // Every judge's marks are added together. Three judges giving 30, 50 and 30
+    // makes 110, and that is what the contestant carries.
+    const marks = perJudge.reduce((a, b) => a + b, 0)
 
-    return { ...shell(e), marks, maxMarks, judgesIn: perJudge.length }
+    return { ...shell(e), marks, maxMarks: maxMarks * (perJudge.length || 1), judgesIn: perJudge.length }
   })
 
   return out.sort((a, b) => b.marks - a.marks || Number(a.bib ?? 0) - Number(b.bib ?? 0))

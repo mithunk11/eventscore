@@ -52,7 +52,7 @@ export default async function PodiumPage({ params }: { params: Promise<{ id: str
                   <span className="bigplace nums">{pos + 1}</span>
                   <span className="bigname">{w.name}</span>
                   {w.bib && <span className="bigbib nums">Chest {w.bib}</span>}
-                  {event.show_scores && <span className="bigscore nums">{w.score.toFixed(1)}%</span>}
+                  {event.show_scores && <span className="bigscore nums">{Math.round(w.marks * 10) / 10}</span>}
                 </div>
               )
             })}
