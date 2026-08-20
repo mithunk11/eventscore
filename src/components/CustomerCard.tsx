@@ -54,18 +54,20 @@ export function CustomerCard({ customer }: { customer: Customer }) {
       </div>
 
       {deleted ? (
-        <div className="override" style={{ marginTop: 12 }}>
-          <p className="sub" style={{ margin: 0 }}>
-            Deleted. Data is purged in {graceLeft} day{graceLeft === 1 ? '' : 's'}.
-          </p>
-          <button className="btn btn-ghost" style={{ minHeight: 40, fontSize: 13 }} disabled={busy}
-            onClick={() => run(() => restore(customer.id))}>Restore</button>
-        </div>
+        <>
+          <div className="override" style={{ marginTop: 12 }}>
+            <p className="sub" style={{ margin: 0 }}>
+              Deleted. Data is purged in {graceLeft} day{graceLeft === 1 ? '' : 's'}.
+            </p>
+            <button className="btn btn-ghost" style={{ minHeight: 40, fontSize: 13 }} disabled={busy}
+              onClick={() => run(() => restore(customer.id))}>Restore</button>
+          </div>
 
-        <div className="purge-row">
-          <PurgeAccount profileId={customer.id} email={customer.email}
-            eventCount={customer.eventCount} />
-        </div>
+          <div className="purge-row">
+            <PurgeAccount profileId={customer.id} email={customer.email}
+              eventCount={customer.eventCount} />
+          </div>
+        </>
       ) : (
         <>
           <div className="seg">
