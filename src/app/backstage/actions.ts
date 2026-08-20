@@ -60,6 +60,11 @@ export async function restore(profileId: string) {
   const supabase = await requireOwner()
   if (!supabase) return { error: 'Not permitted.' }
 
+  // Supabase leaves the email unconfirmed after some admin changes, which
+  // blocks sign-in with a confusing message. Re-confirm on the way back in.
+  const { createAdminClient } = await import('@/lib/supabase/admin')
+  await createAdminClient().auth.admin.updateUserById(profileId, { email_confirm: true })
+
   const { error } = await supabase.from('profiles')
     .update({ status: 'active', access: 'full', deleted_at: null })
     .eq('id', profileId)
