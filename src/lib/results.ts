@@ -57,9 +57,14 @@ export async function fullResults(db: SupabaseClient, eventId: string) {
 
   const list = Array.from(rows.values()).filter((r) => r.reached > 0)
 
-  // Highest total wins. Going further naturally earns more marks, so the
-  // ordering follows how far somebody got without needing a separate rule.
-  list.sort((a, b) => b.total - a.total || Number(a.bib ?? 0) - Number(b.bib ?? 0))
+  // How far somebody got comes first. Somebody eliminated in round one sits
+  // below everybody who reached round two, however well they scored in that
+  // single round. Within a group, total marks decide the order.
+  list.sort((a, b) =>
+    b.reached - a.reached ||
+    b.total - a.total ||
+    Number(a.bib ?? 0) - Number(b.bib ?? 0)
+  )
 
   return { columns, rows: list }
 }
