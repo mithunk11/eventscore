@@ -642,7 +642,7 @@ from { transform: translate(-50%, 100%) } to { transform: translate(-50%, 0) }
 .legal-nav a { font-size: 13px; color: var(--muted); text-decoration: none }
 .legal-nav a:hover { color: var(--amber) }
 :focus-visible { outline: 3px solid var(--amber-edge); outline-offset: 2px }
-.app-dark { background: var(--house); color: var(--chalk); border-color: rgba(242,236,255,.10) }
+.app.app-dark { background: var(--house); color: var(--chalk); border-color: rgba(242,236,255,.10) }
 .app-dark .topbar, .app-dark .dock { background: rgba(34,23,51,.78); border-color: rgba(242,236,255,.10) }
 .app-dark .topbar-title, .app-dark .back, .app-dark .display, .app-dark .card-title { color: var(--chalk) }
 .app-dark .spot {
