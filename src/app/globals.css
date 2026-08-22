@@ -2155,3 +2155,78 @@ from { transform: scaleY(.06); opacity: 0 }
   line-height: 1.55;
   color: var(--muted);
 }
+
+/* ============================================================
+   SLIDER
+   The thumb was too small to grab reliably. Judges use these in
+   a dark room, one-handed, with an audience waiting.
+   ============================================================ */
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 52px;              /* the whole strip is the touch target */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;       /* let a vertical swipe still scroll the page */
+}
+
+/* ---- Track ---- */
+
+.slider::-webkit-slider-runnable-track {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(242, 236, 255, .16);
+}
+.slider::-moz-range-track {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(242, 236, 255, .16);
+}
+
+/* ---- Thumb ---- */
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  margin-top: -13px;         /* centre it on the track */
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 3px solid #FFB547;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .45);
+  transition: transform .08s ease;
+}
+.slider::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 3px solid #FFB547;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .45);
+}
+
+/* Grows under the finger so you can see what you have hold of */
+.slider:active::-webkit-slider-thumb { transform: scale(1.18) }
+.slider:active::-moz-range-thumb { transform: scale(1.18) }
+
+.slider:focus { outline: none }
+.slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px rgba(255, 181, 71, .4) }
+
+/* Light theme, wherever a slider appears outside the judge screen */
+.app:not(.app-dark) .slider::-webkit-slider-runnable-track { background: var(--line) }
+.app:not(.app-dark) .slider::-moz-range-track { background: var(--line) }
+.app:not(.app-dark) .slider::-webkit-slider-thumb { border-color: var(--amber); box-shadow: 0 3px 10px rgba(36,26,56,.28) }
+.app:not(.app-dark) .slider::-moz-range-thumb { border-color: var(--amber); box-shadow: 0 3px 10px rgba(36,26,56,.28) }
+
+/* A little more room around each row now the thumb is bigger */
+.stepper { gap: 14px }
+.cat { margin-bottom: 28px }
+
+@media (prefers-reduced-motion: reduce) {
+  .slider::-webkit-slider-thumb { transition: none }
+}
