@@ -2373,3 +2373,81 @@ from { transform: scaleY(.06); opacity: 0 }
 .setupcta-title { display: block; font-family: var(--font-display), Georgia, serif; font-size: 19px }
 .setupcta-sub { display: block; margin-top: 3px; font-size: 13px; color: rgba(255,255,255,.72) }
 .setupcta .chev { color: rgba(255,255,255,.6); font-size: 22px }
+
+/* ---------- Mark breakdown on the rankings page ---------- */
+
+.bd-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin: 34px 0 14px;
+}
+
+.bd-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+}
+
+.bd { border-collapse: separate; border-spacing: 0; font-size: 12px; width: 100%; min-width: 340px }
+
+.bd th, .bd td {
+  padding: 9px 10px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+.bd .tl { text-align: left }
+.bd tbody tr:last-child td { border-bottom: 0 }
+
+.bd thead th {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--paper);
+}
+.bd .bd-round { border-bottom: 2px solid var(--amber-edge); color: var(--ink) }
+.bd-roundname { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted) }
+
+.bd-sub th { font-size: 9px; padding-top: 6px; padding-bottom: 6px }
+.bd-judge { display: block; font-size: 8px; color: var(--amber); letter-spacing: .06em }
+
+/* Rank and name stay put while the rest scrolls */
+.bd-stick { position: sticky; background: var(--card); z-index: 1 }
+.bd-rank { left: 0; width: 34px; text-align: center; color: var(--muted) }
+.bd-name { left: 34px; min-width: 120px; box-shadow: 1px 0 0 var(--line) }
+.bd thead .bd-stick { background: var(--paper); z-index: 2 }
+
+.bd-bib {
+  display: inline-grid; place-items: center;
+  min-width: 20px; height: 20px; padding: 0 5px; margin-right: 7px;
+  border-radius: 999px; background: var(--rose); color: #fff;
+  font-size: 10px; font-weight: 700;
+}
+
+.bd-cell { color: var(--muted) }
+.bd-jtotal { font-weight: 700; background: rgba(240,169,60,.07) }
+.bd-rtotal { font-weight: 700; background: rgba(240,169,60,.13); color: var(--ink) }
+.bd-total {
+  font-family: var(--font-display), Georgia, serif; font-size: 14px;
+  color: var(--amber); background: var(--amber-soft);
+}
+.bd-out { color: var(--faint) }
+.bd-top td { background: rgba(240,169,60,.06) }
+.bd-top .bd-stick { background: #FFFBF4 }
+
+/* ---------- Wide print sheet ---------- */
+
+.paper-wide { max-width: none }
+.paper-grid { font-size: 9pt }
+.paper-grid th, .paper-grid td { padding: 4px 6px }
+.paper-judge { border-bottom: 1.5px solid #9A5600 }
+.paper-cat { font-weight: 400; font-size: 8pt }
+.paper-sub { background: rgba(240,169,60,.12) }
+.paper-top td { background: rgba(240,169,60,.14) }
+.paper-comment { margin-bottom: 12px; padding-left: 10px; border-left: 2px solid #DCD6E0 }
+
+@media print {
+  .paper-break { break-before: page }
+  .paper-grid { font-size: 8pt }
+  @page { size: A4 landscape; margin: 12mm }
+}

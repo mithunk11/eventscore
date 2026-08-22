@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { fullResults } from '@/lib/results'
 import { signedUrls } from '@/lib/media'
 import { Podium } from '@/components/Podium'
+import { BreakdownTable } from '@/components/BreakdownTable'
+import { fullBreakdown } from '@/lib/breakdown'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +19,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
   if (!event) notFound()
 
   const { columns, rows } = await fullResults(supabase, id)
+  const bd = await fullBreakdown(supabase, id)
   const photos = await signedUrls(supabase, rows.map((r) => r.photo).concat([event.logo_url]))
 
   const winners = rows.slice(0, event.winners_count ?? 3)
@@ -71,37 +74,7 @@ export default async function ResultsPage({ params }: { params: Promise<{ id: st
               </a>
             </div>
 
-            <div className="ranktable-wrap">
-              <table className="ranktable nums">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th className="tl">Contestant</th>
-                    {columns.map((c) => <th key={c.id}>R{c.position}</th>)}
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r, i) => (
-                    <tr key={r.contestantId} className={i < (event.winners_count ?? 3) ? 'top' : ''}>
-                      <td>{i + 1}</td>
-                      <td className="tl">
-                        <span className="rankname">
-                          {r.bib && <span className="rankbib">{r.bib}</span>}
-                          {r.name}
-                        </span>
-                      </td>
-                      {columns.map((c) => (
-                        <td key={c.id} className={r.perRound[c.id] == null ? 'out' : ''}>
-                          {r.perRound[c.id] == null ? '\u2013' : String(Math.round(r.perRound[c.id]! * 10) / 10)}
-                        </td>
-                      ))}
-                      <td className="grand">{Math.round(r.total * 10) / 10}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <BreakdownTable rounds={bd.rounds} judges={bd.judges} rows={bd.rows} />
 
             <p className="sub" style={{ fontSize: 12, marginTop: 14 }}>
               A dash means the contestant did not take part in that round. Marks are added across every round a contestant took part in.
