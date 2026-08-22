@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { roundOutcome } from '@/lib/scoring'
+import { roundOutcomeDetailed } from '@/lib/scoring'
 import { signedUrls } from '@/lib/media'
 import { OutcomeTables } from '@/components/OutcomeTables'
 
@@ -20,11 +20,27 @@ export default async function OutcomePage({
   const { data: event } = await supabase.from('events').select('name').eq('id', id).single()
   if (!event) notFound()
 
-  const outcome = await roundOutcome(supabase, roundId)
-  if (!outcome) notFound()
+  const outcome = await roundOutcomeDetailed(supabase, roundId)
+  if (!outcome) {
+    return (
+      <div className="app">
+        <div className="spot" />
+        <header className="topbar">
+          <a className="back" href={'/events/' + id + '/rounds/' + roundId} aria-label="Back">&lsaquo;</a>
+          <span className="topbar-title">Round result</span>
+        </header>
+        <div className="screen">
+          <div className="empty" style={{ marginTop: 30 }}>
+            <h2 className="display d-l" style={{ marginBottom: 8 }}>Nothing yet</h2>
+            <p className="sub">Results appear once judges start submitting this round.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const photos = await signedUrls(supabase,
-    [...outcome.through, ...outcome.out].map((s) => s.photo))
+    [...outcome.through, ...outcome.out].map((r) => r.photo))
 
   return (
     <div className="app">
@@ -39,15 +55,16 @@ export default async function OutcomePage({
           Round {String(outcome.round.position).padStart(2, '0')} &middot; {outcome.round.name}
         </p>
         <h1 className="display d-xl">
-          {outcome.isFinal ? 'Final placings' : 'Who went through'}
+          {outcome.isFinal ? 'Final placings' : 'Current rankings'}
         </h1>
-        <p className="sub" style={{ marginBottom: 24 }}>
-          {outcome.isFinal
-            ? 'This round decided the event.'
-            : `The top ${outcome.round.advance_count} advanced. Marks are out of ${outcome.through[0]?.maxMarks ?? 0}.`}
+        <p className="sub" style={{ marginBottom: 22 }}>
+          {outcome.judges.length} judge{outcome.judges.length === 1 ? '' : 's'} submitted,
+          each marking out of {outcome.perJudgeMax}.
+          {outcome.isFinal ? '' : ` The top ${outcome.round.advance_count} go through.`}
         </p>
 
-        <OutcomeTables through={outcome.through} out={outcome.out} photos={photos} />
+        <OutcomeTables through={outcome.through} out={outcome.out} photos={photos}
+          judgeCount={outcome.judges.length} />
       </div>
     </div>
   )

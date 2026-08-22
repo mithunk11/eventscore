@@ -158,3 +158,121 @@ export async function roundOutcome(db: SupabaseClient, roundId: string) {
     isFinal: round.advance_count == null,
   }
 }
+
+export type JudgeMark = { judgeId: string; judgeName: string; marks: number }
+
+export type OutcomeRow = {
+  entryId: string
+  contestantId: string
+  name: string
+  bib: string | null
+  photo: string | null
+  roundMarks: number
+  roundMax: number
+  perJudge: JudgeMark[]
+  runningTotal: number
+  runningMax: number
+}
+
+/**
+ * Everything needed for the tables shown between rounds: who went through, who
+ * did not, what each judge gave, and the running total across every round so
+ * far.
+ *
+ * Judges and organisers see the same thing. A judge who can check the
+ * arithmetic can stand over the result.
+ */
+export async function roundOutcomeDetailed(db: SupabaseClient, roundId: string) {
+  const { data: round } = await db
+    .from('rounds').select('id, event_id, name, position, advance_count')
+    .eq('id', roundId).maybeSingle()
+  if (!round) return null
+
+  const [judgesRes, catsRes, entriesRes, subsRes, priorRoundsRes] = await Promise.all([
+    db.from('judges').select('id, name, position')
+      .eq('event_id', round.event_id).eq('status', 'active').order('position'),
+    db.from('categories').select('id, max_score').eq('round_id', roundId),
+    db.from('entries')
+      .select('id, contestant_id, contestants(name, bib_number, photo_url)')
+      .eq('round_id', roundId),
+    db.from('submissions').select('judge_id').eq('round_id', roundId),
+    db.from('rounds').select('id, position')
+      .eq('event_id', round.event_id).lte('position', round.position).order('position'),
+  ])
+
+  const judges = judgesRes.data ?? []
+  const categories = catsRes.data ?? []
+  const entries = entriesRes.data ?? []
+  if (categories.length === 0 || entries.length === 0) return null
+
+  const submitted = new Set((subsRes.data ?? []).map((s) => s.judge_id))
+  const activeJudges = judges.filter((j) => submitted.has(j.id))
+
+  const perJudgeMax = categories.reduce((acc, c) => acc + (Number(c.max_score) || 0), 0)
+  const roundMax = perJudgeMax * (activeJudges.length || 1)
+
+  const { data: scores } = await db
+    .from('scores').select('judge_id, entry_id, category_id, value')
+    .in('entry_id', entries.map((e) => e.id))
+
+  const lookup = new Map<string, Map<string, number>>()   // judge|entry -> total
+  for (const s of scores ?? []) {
+    if (s.value === null) continue
+    const key = s.judge_id + '|' + s.entry_id
+    lookup.set(key, (lookup.get(key) ?? 0) + Number(s.value))
+  }
+
+  // Running totals need every earlier round as well
+  const running = new Map<string, { marks: number; max: number }>()
+  for (const r of priorRoundsRes.data ?? []) {
+    const st = await roundStandings(db, r.id)
+    for (const s of st) {
+      if (s.judgesIn === 0) continue
+      const cur = running.get(s.contestantId) ?? { marks: 0, max: 0 }
+      cur.marks += s.marks
+      cur.max += s.maxMarks
+      running.set(s.contestantId, cur)
+    }
+  }
+
+  const rows: OutcomeRow[] = entries.map((e) => {
+    const c = e.contestants as unknown as {
+      name: string; bib_number: string | null; photo_url: string | null
+    }
+
+    const perJudge: JudgeMark[] = activeJudges.map((j) => ({
+      judgeId: j.id,
+      judgeName: j.name,
+      marks: lookup.get(j.id + '|' + e.id) ?? 0,
+    }))
+
+    const roundMarks = perJudge.reduce((acc, p) => acc + p.marks, 0)
+    const run = running.get(e.contestant_id) ?? { marks: roundMarks, max: roundMax }
+
+    return {
+      entryId: e.id,
+      contestantId: e.contestant_id,
+      name: c?.name ?? 'Unknown',
+      bib: c?.bib_number ?? null,
+      photo: c?.photo_url ?? null,
+      roundMarks,
+      roundMax,
+      perJudge,
+      runningTotal: run.marks,
+      runningMax: run.max,
+    }
+  })
+
+  rows.sort((a, b) => b.roundMarks - a.roundMarks || compareBib(a.bib, b.bib))
+
+  const cut = round.advance_count ?? rows.length
+
+  return {
+    round,
+    judges: activeJudges.map((j) => ({ id: j.id, name: j.name })),
+    through: rows.slice(0, cut),
+    out: rows.slice(cut),
+    isFinal: round.advance_count == null,
+    perJudgeMax,
+  }
+}

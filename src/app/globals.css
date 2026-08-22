@@ -2230,3 +2230,60 @@ from { transform: scaleY(.06); opacity: 0 }
 @media (prefers-reduced-motion: reduce) {
   .slider::-webkit-slider-thumb { transition: none }
 }
+
+/* ---------- Round outcome cards ---------- */
+
+.ocard {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--teal-edge);
+  border-radius: 18px;
+  background: var(--card);
+}
+.outcome-dim .ocard { border-left-color: var(--line-hi); opacity: .78 }
+
+.ocard-top { display: flex; align-items: center; gap: 12px }
+
+.oplace {
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  width: 34px; height: 34px;
+  border-radius: 11px;
+  background: var(--sunk);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.oscore {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 19px;
+  color: var(--amber);
+  white-space: nowrap;
+}
+.oscore small { font-size: 11px; color: var(--muted) }
+
+.ojudges {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin-top: 12px; padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+.ojudge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--sunk);
+  font-size: 12px;
+}
+.ojudge-name { color: var(--muted) }
+.ojudge-mark { font-weight: 700; color: var(--ink) }
+
+.app-dark .ocard { background: var(--riser); border-color: rgba(242,236,255,.10) }
+.app-dark .outcome-dim .ocard { border-left-color: rgba(242,236,255,.20) }
+.app-dark .oplace { background: var(--lift); color: var(--chalk) }
+.app-dark .oscore { color: #FFB547 }
+.app-dark .oscore small { color: #A99CC4 }
+.app-dark .ojudges { border-top-color: rgba(242,236,255,.10) }
+.app-dark .ojudge { background: rgba(242,236,255,.08) }
+.app-dark .ojudge-name { color: #A99CC4 }
+.app-dark .ojudge-mark { color: var(--chalk) }

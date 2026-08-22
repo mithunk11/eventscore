@@ -254,8 +254,8 @@ export function JudgeScorecard({
               </button>
             </>
           ) : everyoneIn ? (
-            <a className="btn btn-amber btn-full" href={isFinal ? '/judge/results' : (hasNextRound ? '/judge/shortlist' : '/judge/results')}>
-              {isFinal ? 'See the winners' : 'Continue'}
+            <a className="btn btn-amber btn-full" href="/judge/shortlist">
+              {isFinal ? 'See the rankings' : 'See who goes through'}
             </a>
           ) : (
             <button className="btn btn-ghost btn-full" disabled>

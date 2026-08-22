@@ -1,13 +1,12 @@
 import { redirect } from 'next/navigation'
 import { getJudgeSession } from '@/lib/judge-session'
-import { ensureRoster, roundOutcome } from '@/lib/scoring'
+import { ensureRoster, roundOutcomeDetailed } from '@/lib/scoring'
 import { signedUrls } from '@/lib/media'
 import { signOutJudge } from '../actions'
 import { OutcomeTables } from '@/components/OutcomeTables'
 
 export const dynamic = 'force-dynamic'
 
-/** Between rounds: the list judges read out. Who is through, and who is not. */
 export default async function ShortlistPage() {
   const session = await getJudgeSession()
   if (!session) redirect('/judge')
@@ -21,18 +20,19 @@ export default async function ShortlistPage() {
   const mine = new Set((subs ?? []).map((s) => s.round_id))
 
   const next = rounds.find((r) => !mine.has(r.id))
-  if (!next || next.position === 1) redirect('/judge/score')
+  const previous = next
+    ? rounds.find((r) => r.position === next.position - 1)
+    : rounds[rounds.length - 1]
 
-  const previous = rounds.find((r) => r.position === next.position - 1)
   if (!previous) redirect('/judge/score')
 
-  const outcome = await roundOutcome(db, previous.id)
+  const outcome = await roundOutcomeDetailed(db, previous.id)
   if (!outcome) redirect('/judge/score')
 
-  await ensureRoster(db, next.id)
+  if (next) await ensureRoster(db, next.id)
 
   const photos = await signedUrls(db,
-    [...outcome.through, ...outcome.out].map((s) => s.photo))
+    [...outcome.through, ...outcome.out].map((r) => r.photo))
 
   return (
     <div className="app app-dark">
@@ -46,16 +46,24 @@ export default async function ShortlistPage() {
         <p className="eyebrow nums">
           After round {String(previous.position).padStart(2, '0')} &middot; {previous.name}
         </p>
-        <h1 className="display d-xl">Who goes through</h1>
-        <p className="sub" style={{ marginBottom: 24 }}>
-          Read this out before {next.name} begins.
+        <h1 className="display d-xl">Current rankings</h1>
+        <p className="sub" style={{ marginBottom: 22 }}>
+          {outcome.judges.length === 1
+            ? 'Your marks, out of ' + outcome.perJudgeMax + ' for this round.'
+            : outcome.judges.length + ' judges, each marking out of ' + outcome.perJudgeMax + '.'}
+          {next ? ' Read this out before ' + next.name + ' begins.' : ''}
         </p>
 
-        <OutcomeTables through={outcome.through} out={outcome.out} photos={photos} />
+        <OutcomeTables through={outcome.through} out={outcome.out} photos={photos}
+          judgeCount={outcome.judges.length} />
       </div>
 
       <div className="dock">
-        <a className="btn btn-amber btn-full" href="/judge/score">Begin {next.name}</a>
+        {next ? (
+          <a className="btn btn-amber btn-full" href="/judge/score">Begin {next.name}</a>
+        ) : (
+          <a className="btn btn-amber btn-full" href="/judge/results">See final rankings</a>
+        )}
       </div>
     </div>
   )
