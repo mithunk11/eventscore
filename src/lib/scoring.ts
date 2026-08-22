@@ -215,11 +215,12 @@ export async function roundOutcomeDetailed(db: SupabaseClient, roundId: string) 
     .from('scores').select('judge_id, entry_id, category_id, value')
     .in('entry_id', entries.map((e) => e.id))
 
-  const lookup = new Map<string, Map<string, number>>()   // judge|entry -> total
+  // "judgeId|entryId" -> that judge's total for that contestant
+  const judgeTotals = new Map<string, number>()
   for (const s of scores ?? []) {
     if (s.value === null) continue
     const key = s.judge_id + '|' + s.entry_id
-    lookup.set(key, (lookup.get(key) ?? 0) + Number(s.value))
+    judgeTotals.set(key, (judgeTotals.get(key) ?? 0) + Number(s.value))
   }
 
   // Running totals need every earlier round as well
@@ -243,7 +244,7 @@ export async function roundOutcomeDetailed(db: SupabaseClient, roundId: string) 
     const perJudge: JudgeMark[] = activeJudges.map((j) => ({
       judgeId: j.id,
       judgeName: j.name,
-      marks: lookup.get(j.id + '|' + e.id) ?? 0,
+      marks: judgeTotals.get(j.id + '|' + e.id) ?? 0,
     }))
 
     const roundMarks = perJudge.reduce((acc, p) => acc + p.marks, 0)
