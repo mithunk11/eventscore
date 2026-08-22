@@ -45,6 +45,18 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
           <div className="stat"><span className="stat-label">Judges</span><span className="stat-value nums">{judgeCount}</span></div>
         </div>
 
+        {(roundCount === 0 || contestantCount === 0 || judgeCount === 0) && (
+          <a className="setupcta" href={'/events/' + id + '/setup'}>
+            <span>
+              <span className="setupcta-title">Set up this event</span>
+              <span className="setupcta-sub">
+                We will walk you through rounds, contestants and judges
+              </span>
+            </span>
+            <span className="chev">&rsaquo;</span>
+          </a>
+        )}
+
         <p className="eyebrow eyebrow-quiet">Before you can score</p>
         <ul className="list" style={{ marginBottom: 30 }}>
           <li>
