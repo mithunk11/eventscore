@@ -169,3 +169,95 @@ export async function skipBallot(eventId: string, ballotId: string) {
   revalidatePath('/events/' + eventId + '/live')
   return { ok: true }
 }
+
+/** True once any judge has entered a mark for this round. */
+async function roundHasScores(supabase: Awaited<ReturnType<typeof createClient>>, roundId: string) {
+  const { data: entries } = await supabase.from('entries').select('id').eq('round_id', roundId)
+  if (!entries?.length) return false
+  const { count } = await supabase
+    .from('scores').select('id', { count: 'exact', head: true })
+    .in('entry_id', entries.map((e) => e.id))
+  return (count ?? 0) > 0
+}
+
+export async function updateRound(eventId: string, roundId: string, form: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in.' }
+
+  if (await roundHasScores(supabase, roundId)) {
+    return { error: 'Judges have started scoring this round, so it can no longer be changed.' }
+  }
+
+  const name = String(form.get('name') ?? '').trim()
+  const isFinal = form.get('is_final') === 'yes'
+  const advance = form.get('advance')
+
+  if (!name) return { error: 'Give the round a name.' }
+  if (!isFinal && !advance) return { error: 'Say how many go through, or mark this as the final.' }
+
+  const { error } = await supabase.from('rounds').update({
+    name,
+    advance_count: isFinal ? null : Number(advance),
+  }).eq('id', roundId)
+
+  if (error) return { error: error.message }
+  revalidatePath('/events/' + eventId)
+  revalidatePath('/events/' + eventId + '/rounds/' + roundId)
+  return { ok: true }
+}
+
+/**
+ * Deletes a round outright. Its categories, entries and any marks go with it,
+ * and the rounds after it move up to close the gap.
+ */
+export async function deleteRound(eventId: string, roundId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in.' }
+
+  if (await roundHasScores(supabase, roundId)) {
+    return { error: 'Judges have scored this round, so it cannot be deleted.' }
+  }
+
+  const { data: round } = await supabase
+    .from('rounds').select('position, event_id').eq('id', roundId).maybeSingle()
+  if (!round || round.event_id !== eventId) return { error: 'Round not found.' }
+
+  const { error } = await supabase.from('rounds').delete().eq('id', roundId)
+  if (error) return { error: error.message }
+
+  // Close the gap so the numbering stays 1, 2, 3
+  const { data: rest } = await supabase
+    .from('rounds').select('id, position').eq('event_id', eventId).order('position')
+  for (let i = 0; i < (rest ?? []).length; i++) {
+    if (rest![i].position !== i + 1) {
+      await supabase.from('rounds').update({ position: i + 1 }).eq('id', rest![i].id)
+    }
+  }
+
+  revalidatePath('/events/' + eventId)
+  redirect('/events/' + eventId)
+}
+
+export async function updateCategory(eventId: string, roundId: string, categoryId: string, form: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not signed in.' }
+
+  if (await roundHasScores(supabase, roundId)) {
+    return { error: 'Judges have started scoring, so the marks cannot be changed now.' }
+  }
+
+  const name = String(form.get('name') ?? '').trim()
+  const max = Number(form.get('max_score') ?? 0)
+  if (!name) return { error: 'Give the category a name.' }
+  if (!max || max < 1) return { error: 'The highest mark must be at least 1.' }
+
+  const { error } = await supabase.from('categories')
+    .update({ name, max_score: max }).eq('id', categoryId)
+
+  if (error) return { error: error.message }
+  revalidatePath('/events/' + eventId + '/rounds/' + roundId)
+  return { ok: true }
+}

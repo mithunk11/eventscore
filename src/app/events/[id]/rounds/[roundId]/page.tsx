@@ -2,6 +2,8 @@ import { redirect, notFound } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { AddCategory } from '@/components/AddCategory'
+import { EditRound } from '@/components/EditRound'
+import { EditCategory } from '@/components/EditCategory'
 
 export default async function RoundPage({ params }: { params: Promise<{ id: string; roundId: string }> }) {
   const { id, roundId } = await params
@@ -15,6 +17,19 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
 
   const { data: categories } = await supabase
     .from('categories').select('*').eq('round_id', roundId).order('position')
+
+  const { data: roundEntries } = await supabase
+    .from('entries').select('id').eq('round_id', roundId)
+  let locked = false
+  if (roundEntries?.length) {
+    const { count } = await supabase
+      .from('scores').select('id', { count: 'exact', head: true })
+      .in('entry_id', roundEntries.map((e) => e.id))
+    locked = (count ?? 0) > 0
+  }
+
+  const { count: roundCount } = await supabase
+    .from('rounds').select('id', { count: 'exact', head: true }).eq('event_id', id)
 
   const isFinal = !round.advance_count
 
@@ -39,6 +54,12 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
         <p className="sub" style={{ marginBottom: 30 }}>
           {isFinal ? 'This round decides the winners.' : 'The top ' + round.advance_count + ' go through.'}
         </p>
+
+        <div style={{ marginBottom: 26 }}>
+          <EditRound eventId={id} roundId={roundId} name={round.name}
+            advanceCount={round.advance_count} locked={locked}
+            roundCount={roundCount ?? 1} />
+        </div>
 
         <ul className="list" style={{ marginBottom: 26 }}>
           <li>
@@ -68,10 +89,16 @@ export default async function RoundPage({ params }: { params: Promise<{ id: stri
                   <span className="slab-name">{c.name}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <span className="mark nums">{c.max_score}<small> max</small></span>
-                    <form action={removeCategory}>
-                      <input type="hidden" name="categoryId" value={c.id} />
-                      <button className="trash" type="submit">Remove</button>
-                    </form>
+                    {!locked && (
+                      <EditCategory eventId={id} roundId={roundId} categoryId={c.id}
+                        name={c.name} maxScore={Number(c.max_score)} />
+                    )}
+                    {!locked && (
+                      <form action={removeCategory}>
+                        <input type="hidden" name="categoryId" value={c.id} />
+                        <button className="trash" type="submit">Remove</button>
+                      </form>
+                    )}
                   </span>
                 </li>
               ))}

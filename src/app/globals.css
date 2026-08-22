@@ -2143,3 +2143,15 @@ from { transform: scaleY(.06); opacity: 0 }
 .app-dark .outcome-out { background: rgba(242,236,255,.10) }
 .app-dark .outcome-out .outcome-label { color: #C3B8D9 }
 .app-dark .outcome-out .outcome-count { background: rgba(242,236,255,.14); color: #C3B8D9 }
+
+/* ---------- Locked round notice ---------- */
+
+.lockednote {
+  margin: 0 0 26px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--sunk);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
