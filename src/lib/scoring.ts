@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { compareBib, byBib } from '@/lib/order'
 
 export type Standing = {
   entryId: string
@@ -83,7 +84,7 @@ export async function roundStandings(db: SupabaseClient, roundId: string): Promi
     return { ...shell(e), marks, maxMarks: maxMarks * (perJudge.length || 1), judgesIn: perJudge.length }
   })
 
-  return out.sort((a, b) => b.marks - a.marks || Number(a.bib ?? 0) - Number(b.bib ?? 0))
+  return out.sort((a, b) => b.marks - a.marks || compareBib(a.bib, b.bib))
 }
 
 /**

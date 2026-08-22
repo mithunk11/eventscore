@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { signedUrls } from '@/lib/media'
 import { AddContestant } from '@/components/AddContestant'
+import { compareBib, byBib } from '@/lib/order'
 
 export default async function ContestantsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -15,7 +16,7 @@ export default async function ContestantsPage({ params }: { params: Promise<{ id
   if (!event) notFound()
 
   const { data: contestants } = await supabase
-    .from('contestants').select('*').eq('event_id', id).order('bib_number')
+    .from('contestants').select('*').eq('event_id', id)
 
   const photos = await signedUrls(supabase, (contestants ?? []).map((c) => c.photo_url))
   const count = contestants?.length ?? 0

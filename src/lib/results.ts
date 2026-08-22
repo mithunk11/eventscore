@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { roundStandings } from '@/lib/scoring'
+import { compareBib, byBib } from '@/lib/order'
 
 export type RoundColumn = { id: string; name: string; position: number; maxMarks: number }
 
@@ -63,7 +64,7 @@ export async function fullResults(db: SupabaseClient, eventId: string) {
   list.sort((a, b) =>
     b.reached - a.reached ||
     b.total - a.total ||
-    Number(a.bib ?? 0) - Number(b.bib ?? 0)
+    compareBib(a.bib, b.bib)
   )
 
   return { columns, rows: list }

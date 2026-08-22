@@ -4,6 +4,7 @@ import { ensureRoster } from '@/lib/scoring'
 import { signedUrls } from '@/lib/media'
 import { JudgeScorecard } from '@/components/JudgeScorecard'
 import { signOutJudge } from '../actions'
+import { compareBib, byBib } from '@/lib/order'
 
 export default async function JudgeScorePage() {
   const session = await getJudgeSession()
@@ -47,7 +48,7 @@ export default async function JudgeScorePage() {
       entryId: e.id, name: c.name, bib: c.bib_number, description: c.description,
       photo: c.photo_url ? photos[c.photo_url] ?? null : null,
     }
-  }).sort((a, b) => Number(a.bib ?? 0) - Number(b.bib ?? 0))
+  }).sort(byBib)
 
   const entryIds = entries.map((e) => e.id)
 

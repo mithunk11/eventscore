@@ -3,6 +3,7 @@ import { getJudgeSession } from '@/lib/judge-session'
 import { signedUrls } from '@/lib/media'
 import { TieBallot } from '@/components/TieBallot'
 import { signOutJudge } from '../actions'
+import { compareBib, byBib } from '@/lib/order'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,7 +37,7 @@ export default async function BallotPage() {
       entryId: e.id, name: c.name, bib: c.bib_number,
       photo: c.photo_url ? photos[c.photo_url] ?? null : null,
     }
-  }).sort((a, b) => Number(a.bib ?? 0) - Number(b.bib ?? 0))
+  }).sort(byBib)
 
   const { data: myVote } = await db
     .from('judge_votes').select('chosen_entry_id')
